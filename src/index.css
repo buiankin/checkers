@@ -49,7 +49,7 @@ html, body {
     clear: both; }
 
 div.column {
-  position: relative;
+  /*position: relative;*/
   float: left;
   overflow: auto;
   height: 100%;
@@ -79,7 +79,7 @@ div.stats {
     text-align: center;
     display: inline-block;
     width: 50%;
-    /*TODO было float: left;*/
+    /*float: left;*/
     background-color: #B93848;
     box-sizing: border-box;
     padding: 0 15px 20px;
@@ -101,7 +101,7 @@ div.stats {
     text-align: center;
     display: inline-block;
     width: 50%;
-    /* TODO было float: left;*/
+    /*float: left;*/
     background-color: #232621;
     box-sizing: border-box;
     padding: 0 15px 20px;
@@ -122,7 +122,8 @@ div.stats {
   div.stats div.turn {
     height: 10px;
     width: 100%;
-    background: linear-gradient(to right, #BEEE62 50%, transparent 50%);
+    /*background: linear-gradient(to right, #BEEE62 50%, transparent 50%);*/
+    /*background: linear-gradient(to right, transparent 50%, #BEEE62 50%);*/
     border-radius: 0 0 3px 3px; }
   div.stats span#winner {
     display: block;
