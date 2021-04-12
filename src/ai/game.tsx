@@ -424,39 +424,39 @@ class Game {
         this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
         //System.out.println("Current Player: " + currentPlayer);
     }
-    /*
     // print moves and in the case of jumps show intermediate jumps
-    void printListMoves(List<Move> movesList) {
-        if (movesList.get(0).listCaptureRow.isEmpty()) {
-            for (int i = 0; i < movesList.size(); i++) {
-                System.out.println("Move " + i + ": (" + movesList.get(i).startRow + "," + movesList.get(i).startCol + ") --> (" + movesList.get(i).endRow + "," + movesList.get(i).endCol + ")");
+    printListMoves(movesList: Move[]) {
+        if (movesList[0].listCaptureRow.length===0) {
+            for (let i = 0; i < movesList.length; i++) {
+                console.debug("Move " + i + ": (" + movesList[i].startRow + "," + movesList[i].startCol + ") --> (" + movesList[i].endRow + "," + movesList[i].endCol + ")");
 
             }
         } else {
-            for (int i = 0; i < movesList.size(); i++) {
-                System.out.println("");
-                System.out.print("Move " + i + ": (" + movesList.get(i).initialRow + "," + movesList.get(i).initialCol + ")");
-                for (int j = 0; j < movesList.get(i).listVisitedRow.size(); j++) {
-                    System.out.print(" --> (" + movesList.get(i).listVisitedRow.get(j) + "," + movesList.get(i).listVisitedCol.get(j) + ")");
+            for (let i = 0; i < movesList.length; i++) {
+                console.debug("\n");
+                console.debug("Move " + i + ": (" + movesList[i].initialRow + "," + movesList[i].initialCol + ")");
+                for (let j = 0; j < movesList[i].listVisitedRow.length; j++) {
+                    console.debug(" --> (" + movesList[i].listVisitedRow[j] + "," + movesList[i].listVisitedCol[j] + ")");
                 }
             }
-            System.out.println("");
+            console.debug("");
         }
-        System.out.println("");
+        console.debug("");
     }
     // print individual move
-    void printMove(Move move) {
-        if (move.listCaptureRow.isEmpty()){
-            System.out.println("Move " + ": (" + move.startRow + "," + move.startCol + ") --> (" + move.endRow + "," + move.endCol + ")");
+    printMove(move: Move) {
+        if (move.listCaptureRow.length===0){
+            console.debug("Move " + ": (" + move.startRow + "," + move.startCol + ") --> (" + move.endRow + "," + move.endCol + ")");
         } else {
-            System.out.print("Move " + ": (" + move.initialRow + "," + move.initialCol + ")");
-            for (int j = 0; j < move.listVisitedRow.size(); j++) {
-                System.out.print(" --> (" + move.listVisitedRow.get(j) + "," + move.listVisitedCol.get(j) + ")");
+            console.debug("Move " + ": (" + move.initialRow + "," + move.initialCol + ")");
+            for (let j = 0; j < move.listVisitedRow.length; j++) {
+                console.debug(" --> (" + move.listVisitedRow[j] + "," + move.listVisitedCol[j] + ")");
             }
-            System.out.println("");
+            console.debug("");
         }
-        System.out.println("");
+        console.debug("");
     }
+    /*
     // print help note which shows what symbols represent the pieces of each player
     void printNote() {
         System.out.println("Player 1 is" + ANSI_RED + "  -  " + ANSI_RESET + "(normal piece) and" + ANSI_RED + "  *  " + ANSI_RESET + "(king)");

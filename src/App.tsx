@@ -5,6 +5,9 @@ import Game from './ai/game';
 import Computer from './ai/computer';
 import Move from './ai/move';
 
+import king1 from './img/king1.png';
+import king2 from './img/king2.png';
+
 import React, {
   FC,
   memo,
@@ -123,12 +126,20 @@ function _renderPieces(playerId: number)
     for (let column=0; column<appState.gameBoard[row].length; column++) { //column is the index
       if (appState.gameBoard[row][column] === playerId) {
 
+        
+        // TODO
+        // this.element.css("backgroundImage", "url('img/king" + this.player + ".png')");
+
         const divStyle = {
           top: dictionary[row],
           left: dictionary[column]
+          //backgroundImage: "url(" + king1 + ")"
         };          
-    
-        values.push(<div key={countPieces.toString()} className="piece" id={"piece"+countPieces.toString()} style={divStyle} onClick={(e)=>handlePieceClick(1,1,e)}></div>);
+
+        let myClassName=appState.hasSelectedItem&&appState.selectedItemRow===row&&appState.selectedItemColumn===column?"piece selected":"piece";
+        
+      
+        values.push(<div key={countPieces.toString()} className={myClassName} id={"piece"+countPieces.toString()} style={divStyle} onClick={(e)=>handlePieceClick(row,column,e)}></div>);
         countPieces++;
       }
     }
@@ -165,9 +176,11 @@ function handleClearGameClick(e: any) {
             //if (player1IsComputer){
                 let move1 = computerPlayer1.alphaBetaSearch(checkers);
                 if (move1)
+                {
                   checkers.applyMove(move1, checkers.board);
-                //console.log("Player 1 Chose: ");
-                //checkers.printMove(move);
+                  console.log("Player 1 Chose: ");
+                  checkers.printMove(move1);
+                }
             //}
             //checkers.printNote();
             //checkers.printBoard();
@@ -184,9 +197,11 @@ function handleClearGameClick(e: any) {
             //if (player2IsComputer) {
                 let move2 = computerPlayer2.alphaBetaSearch(checkers);
                 if (move2)
+                {
                   checkers.applyMove(move2, checkers.board);
-                //System.out.print("Player 2 Chose: ");
-                //engine.checkers.printMove(move);
+                  console.log("Player 2 Chose: ");
+                  checkers.printMove(move2);
+                }
             //}
             //checkers.printNote();
             //checkers.printBoard();

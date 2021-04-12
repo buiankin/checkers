@@ -6,6 +6,10 @@ export const initialState = {
   respectfulAppeal: true,
 
   //The initial setup
+
+  hasSelectedItem: false,
+  selectedItemRow: 0, selectedItemColumn: 0,
+
   playerTurn: 1,
   gameBoard : [
     [0, 1, 0, 1, 0, 1, 0, 1],
@@ -45,6 +49,9 @@ type State = {
 
   character: string,
   respectfulAppeal: boolean,
+
+  hasSelectedItem: boolean,
+  selectedItemRow: number, selectedItemColumn: number,
 
   playerTurn: number,
   gameBoard: number[][],
@@ -134,9 +141,23 @@ export const reducer = (state: State, action: Action) => {
       }
     }
       */
+     let newBoard: number[][]=[];
+     state.gameBoard.forEach(line => {
+      newBoard.push(line.slice());
+     });
+
+     if (state.hasSelectedItem)
+     {
+       // это для теста, чтобы можно было двигать любые фигуры
+       let color=newBoard[state.selectedItemRow][state.selectedItemColumn];
+      newBoard[state.selectedItemRow][state.selectedItemColumn] = 0;
+      newBoard[action.row][action.column] = color;// state.playerTurn;
+     }
 
       return {
-        ...state
+        ...state,
+        gameBoard: newBoard,
+        playerTurn: state.playerTurn===1?2:1
       };
   
 
@@ -164,9 +185,13 @@ export const reducer = (state: State, action: Action) => {
     }
 
     */
-      return {
-        ...state
-      };
+    return {
+      ...state,
+      hasSelectedItem: true,
+      selectedItemRow: action.row,
+      selectedItemColumn: action.column
+    };
+
 
     case "test":
       return {
