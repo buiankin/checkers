@@ -1,6 +1,10 @@
 import logo from './logo.svg';
 import './App.css';
 
+import Game from './ai/game';
+import Computer from './ai/computer';
+import Move from './ai/move';
+
 import React, {
   FC,
   memo,
@@ -64,8 +68,8 @@ function _renderTiles()
   for (let row=0; row<appState.gameBoard.length; row++) { //row is the index
     for (let column=0; column<appState.gameBoard[row].length; column++) { //column is the index
       //whole set of if statements control where the tiles and pieces should be placed on the board
-      if (row % 2 == 1) {
-        if (column % 2 == 0) {
+      if (row % 2 === 1) {
+        if (column % 2 === 0) {
 
           const divStyle = {
             top: dictionary[row],
@@ -77,7 +81,7 @@ function _renderTiles()
 
         }
       } else {
-        if (column % 2 == 1) {
+        if (column % 2 === 1) {
           //countTiles = this.tileRender(row, column, countTiles)
           const divStyle = {
             top: dictionary[row],
@@ -136,8 +140,63 @@ function _renderPieces(playerId: number)
 
 function handleClearGameClick(e: any) {
   e.preventDefault();
-  dispatch({type: 'test'});
+  //dispatch({type: 'test'});
+
+  let checkers = new Game();
+  let computerPlayer1 = new Computer(1, 3);
+  let computerPlayer2 = new Computer(2, 3);
+  checkers.newGame();
+
+  let gameOver = false;
+  // actual game play
+  while (gameOver === false) {
+    let legalMoves: Move[]=[];
+    let moveNumber = -1;
+    switch(checkers.currentPlayer) {
+        case 1:
+            legalMoves = checkers.getLegalMoves(checkers.board);
+            if (legalMoves.length===0) {
+                gameOver = true;
+                console.log("Player 2 Wins!");
+                continue;
+            }
+            console.log("Player 1's Turn: ");
+            //checkers.printListMoves(legalMoves);
+            //if (player1IsComputer){
+                let move1 = computerPlayer1.alphaBetaSearch(checkers);
+                if (move1)
+                  checkers.applyMove(move1, checkers.board);
+                //console.log("Player 1 Chose: ");
+                //checkers.printMove(move);
+            //}
+            //checkers.printNote();
+            //checkers.printBoard();
+            break;
+        case 2:
+            legalMoves = checkers.getLegalMoves(checkers.board);
+            if (legalMoves.length===0) {
+                gameOver = true;
+                console.log("Player 1 Wins!");
+                continue;
+            }
+            console.log("Player 2's Turn: ");
+            //engine.checkers.printListMoves(legalMoves);
+            //if (player2IsComputer) {
+                let move2 = computerPlayer2.alphaBetaSearch(checkers);
+                if (move2)
+                  checkers.applyMove(move2, checkers.board);
+                //System.out.print("Player 2 Chose: ");
+                //engine.checkers.printMove(move);
+            //}
+            //checkers.printNote();
+            //checkers.printBoard();
+            break;
+          }
+        }
+
 }
+
+
 
 
   return (
