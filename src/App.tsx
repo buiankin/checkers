@@ -36,10 +36,43 @@ import { Row } from '@sberdevices/ui';
 
 
 const dictionary = ["0vmin", "10vmin", "20vmin", "30vmin", "40vmin", "50vmin", "60vmin", "70vmin", "80vmin", "90vmin"];
+const label_coords =
+  [[0,1,0,2,0,3,0,4],
+   [5,0,6,0,7,0,8,0],
+   [0,9,0,10,0,11,0,12],
+   [13,0,14,0,15,0,16,0],
+   [0,17,0,18,0,19,0,20],
+   [21,0,22,0,23,0,24,0],
+   [0,25,0,26,0,27,0,28],
+   [29,0,30,0,31,0,32,0]
+  ];
 
 
 export const App: FC = memo(() => {
   const [appState, dispatch] = useReducer(reducer, initialState);
+
+  function downHandler({key}: KeyboardEvent ) {
+    if (key==='ArrowDown')
+      dispatch({type: 'arrow_down'});
+    if (key==='ArrowUp')
+      dispatch({type: 'arrow_up'});
+    if (key==='ArrowLeft')
+      dispatch({type: 'arrow_left'});
+    if (key==='ArrowRight')
+      dispatch({type: 'arrow_right'});
+    if (key==='Enter')
+      dispatch({type: 'arrow_ok'});
+  }
+
+  React.useEffect(() => {
+    window.addEventListener("keydown", downHandler);
+    //window.addEventListener("keyup", upHandler);
+
+    return () => {
+      window.removeEventListener("keydown", downHandler);
+      //window.removeEventListener("keyup", upHandler);
+    };
+  });  
 
 
   function changePlayerTurn() {
@@ -76,10 +109,11 @@ function _renderTiles()
 
           const divStyle = {
             top: dictionary[row],
-            left: dictionary[column]
+            left: dictionary[column],
+            color: "#FF3333"
           };          
       
-          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}></div>);
+          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{label_coords[row][column].toString()}</div>);
           countTiles++;
 
         }
@@ -88,10 +122,11 @@ function _renderTiles()
           //countTiles = this.tileRender(row, column, countTiles)
           const divStyle = {
             top: dictionary[row],
-            left: dictionary[column]
+            left: dictionary[column],
+            color: "#FF3333"
           };          
       
-          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}></div>);
+          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{label_coords[row][column].toString()}</div>);
           countTiles++;
 
         }
@@ -231,7 +266,28 @@ function handleClearGameClick(e: any) {
 
 }
 
+function handleKeyDown(e:any)
+{
+  console.debug("key");
+}
 
+function _renderPult()
+{
+  let values=[];
+
+  if (appState.hasArrowSelectedItem)
+  {
+    const divStyle = {
+      top: dictionary[appState.arrowSelectedItemRow],
+      left: dictionary[appState.arrowSelectedItemColumn]
+    };          
+
+    values.push(<div className="selection" style={divStyle}></div>);
+  }
+
+  return values;
+
+}
 
 
   return (
@@ -260,7 +316,7 @@ function handleClearGameClick(e: any) {
   </div>
 
     <div className="column">
-    <div id="board">
+    <div id="board" onKeyDown={(e)=>handleKeyDown(e)}>
       <div className="tiles">
       {_renderTiles()}
       </div>
@@ -271,6 +327,9 @@ function handleClearGameClick(e: any) {
         <div className="player2pieces">
         {_renderPieces(2)}
         </div>
+      </div>
+      <div className="pult">
+        {_renderPult()}
       </div>
     </div>
     </div>

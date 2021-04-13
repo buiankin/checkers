@@ -7,9 +7,13 @@ class Game {
     // 1 -> player 1 normal pieces, 2 -> player 2 normal pieces, 3 -> player 1 kings, 4 -> player 2 kings
     board: number[][]=[];
 
+    directions=[{y:1, x:1},{y:-1,x:1},{y:1,x:-1},{y:-1,x:-1}];
+
     // set default starting player and time limit
     currentPlayer = 1;
     timeLimit = 3;
+
+    russianRules = true;
     // board colors
     //public const ANSI_RED = "\u001B[91m";
     //public const ANSI_WHITE_BACKGROUND = "\u001B[47m";
@@ -210,7 +214,7 @@ class Game {
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if (this.currentPlayer === 1) {
-                    if (this.board[i][j]%10 === 1 || this.board[i][j]%10 === 3) {
+                    if (this.board[i][j] === 1 || this.board[i][j] === 3) {
                         this.getJumps(jumpMoves, null, this.board[i][j], i, j, state);
                         // stop looking for slide moves if we find any jump moves
                         if (jumpMoves.length===0) {
@@ -218,7 +222,7 @@ class Game {
                         }
                     }
                 } else {
-                    if (this.board[i][j]%10 === 2 || this.board[i][j]%10 === 4) {
+                    if (this.board[i][j] === 2 || this.board[i][j] === 4) {
                         this.getJumps(jumpMoves, null, this.board[i][j], i, j, state);
                         // stop looking for slide moves if we find any jump moves
                         if (jumpMoves.length===0) {
@@ -253,15 +257,37 @@ class Game {
                 break;
             case 3:
             case 4:
-                endRow.push(startRow + 1);
-                endRow.push(startRow + 1);
-                endRow.push(startRow - 1);
-                endRow.push(startRow - 1);
-                endCol.push(startCol + 1);
-                endCol.push(startCol - 1);
-                endCol.push(startCol + 1);
-                endCol.push(startCol - 1);
-                break;
+                if (this.russianRules)
+                {
+                    // Дамка ходит в любом направлении
+                    for (let dir=0; dir<4; dir++)
+                    {
+                        let y=startRow;
+                        let x=startCol;
+                        let offset_y=this.directions[dir].y;
+                        let offset_x=this.directions[dir].x;
+                        for (let offset=1; offset<=7; offset++)
+                        {
+                            y+=offset_y;
+                            x+=offset_x;
+                            // если вышли за границы
+                            if (y < 0 || y > 7 || x < 0 || x > 7) break;
+                            endRow.push(y);
+                            endCol.push(x);
+                        }
+                    }
+                } else
+                {
+                    endRow.push(startRow + 1);
+                    endRow.push(startRow + 1);
+                    endRow.push(startRow - 1);
+                    endRow.push(startRow - 1);
+                    endCol.push(startCol + 1);
+                    endCol.push(startCol - 1);
+                    endCol.push(startCol + 1);
+                    endCol.push(startCol - 1);
+                    break;
+                }
         }
 
         let numMoves = endRow.length;
@@ -284,46 +310,99 @@ class Game {
         let captureRow: number[]=[];
         let captureCol: number[]=[];
 
-        switch (pieceType) {
-            case 1:
-                endRow.push(startRow + 2);
-                endRow.push(startRow + 2);
-                endCol.push(startCol - 2);
-                endCol.push(startCol + 2);
-                captureRow.push(startRow + 1);
-                captureRow.push(startRow + 1);
-                captureCol.push(startCol - 1);
-                captureCol.push(startCol + 1);
-                break;
-            case 2:
-                endRow.push(startRow - 2);
-                endRow.push(startRow - 2);
-                endCol.push(startCol - 2);
-                endCol.push(startCol + 2);
-                captureRow.push(startRow - 1);
-                captureRow.push(startRow - 1);
-                captureCol.push(startCol - 1);
-                captureCol.push(startCol + 1);
-                break;
-            case 3:
-            case 4:
-                endRow.push(startRow + 2);
-                endRow.push(startRow + 2);
-                endRow.push(startRow - 2);
-                endRow.push(startRow - 2);
-                endCol.push(startCol - 2);
-                endCol.push(startCol + 2);
-                endCol.push(startCol - 2);
-                endCol.push(startCol + 2);
-                captureRow.push(startRow + 1);
-                captureRow.push(startRow + 1);
-                captureRow.push(startRow - 1);
-                captureRow.push(startRow - 1);
-                captureCol.push(startCol - 1);
-                captureCol.push(startCol + 1);
-                captureCol.push(startCol - 1);
-                captureCol.push(startCol + 1);
-                break;
+        if (this.russianRules)
+        {
+            switch (pieceType) {
+                case 1:
+                case 2:
+                    // все рубят в любом направлении
+                    endRow.push(startRow + 2);
+                    endRow.push(startRow + 2);
+                    endRow.push(startRow - 2);
+                    endRow.push(startRow - 2);
+                    endCol.push(startCol - 2);
+                    endCol.push(startCol + 2);
+                    endCol.push(startCol - 2);
+                    endCol.push(startCol + 2);
+                    captureRow.push(startRow + 1);
+                    captureRow.push(startRow + 1);
+                    captureRow.push(startRow - 1);
+                    captureRow.push(startRow - 1);
+                    captureCol.push(startCol - 1);
+                    captureCol.push(startCol + 1);
+                    captureCol.push(startCol - 1);
+                    captureCol.push(startCol + 1);
+                    break;
+                case 3:
+                case 4:
+                    // Дамка ходит (рубит) в любом направлении на любое расстояние
+                    for (let dir=0; dir<4; dir++)
+                    {
+                        let offset_y=this.directions[dir].y;
+                        let offset_x=this.directions[dir].x;
+                        // здесь рубят
+                        let y=startRow+offset_y;
+                        let x=startCol+offset_x;
+
+                        for (let offset=1; offset<=7; offset++)
+                        {
+                            // а тут останавливаются
+                            y+=offset_y;
+                            x+=offset_x;
+                            // если вышли за границы
+                            if (y < 0 || y > 7 || x < 0 || x > 7) break;
+                            endRow.push(y);
+                            endCol.push(x);
+                            captureRow.push(y-offset_y);
+                            captureCol.push(x-offset_x);
+                        }
+                    }
+                    break;
+            }
+
+        } else
+        {
+            switch (pieceType) {
+                case 1:
+                    endRow.push(startRow + 2);
+                    endRow.push(startRow + 2);
+                    endCol.push(startCol - 2);
+                    endCol.push(startCol + 2);
+                    captureRow.push(startRow + 1);
+                    captureRow.push(startRow + 1);
+                    captureCol.push(startCol - 1);
+                    captureCol.push(startCol + 1);
+                    break;
+                case 2:
+                    endRow.push(startRow - 2);
+                    endRow.push(startRow - 2);
+                    endCol.push(startCol - 2);
+                    endCol.push(startCol + 2);
+                    captureRow.push(startRow - 1);
+                    captureRow.push(startRow - 1);
+                    captureCol.push(startCol - 1);
+                    captureCol.push(startCol + 1);
+                    break;
+                case 3:
+                case 4:
+                    endRow.push(startRow + 2);
+                    endRow.push(startRow + 2);
+                    endRow.push(startRow - 2);
+                    endRow.push(startRow - 2);
+                    endCol.push(startCol - 2);
+                    endCol.push(startCol + 2);
+                    endCol.push(startCol - 2);
+                    endCol.push(startCol + 2);
+                    captureRow.push(startRow + 1);
+                    captureRow.push(startRow + 1);
+                    captureRow.push(startRow - 1);
+                    captureRow.push(startRow - 1);
+                    captureCol.push(startCol - 1);
+                    captureCol.push(startCol + 1);
+                    captureCol.push(startCol - 1);
+                    captureCol.push(startCol + 1);
+                    break;
+            }
         }
 
         let numMoves = endRow.length;
