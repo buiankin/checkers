@@ -1,6 +1,4 @@
 
-import Pair from './pair';
-
 class Move{
     public initialRow=0;
     public initialCol=0;

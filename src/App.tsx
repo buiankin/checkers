@@ -119,40 +119,59 @@ function handlePieceClick(row: any, column: any, e:any) {
 function _renderPieces(playerId: number)
 {
   let values = [];
+  let keys = [];
+  let values_sorted = [];
 
   let countPieces=0;
 
   for (let row=0; row<appState.gameBoard.length; row++) { //row is the index
     for (let column=0; column<appState.gameBoard[row].length; column++) { //column is the index
-      if (appState.gameBoard[row][column] === playerId) {
-
-        
+      let checker=appState.gameBoard[row][column];
+      let checkersType=checker%10;
+      // 1, 3 - первый игрок, 2, 4 - второй
+      if (checkersType === playerId || checkersType === playerId+2) {
         // TODO
         // this.element.css("backgroundImage", "url('img/king" + this.player + ".png')");
 
-        const divStyle = {
+        const divStyle = checkersType===3?{
+          top: dictionary[row],
+          left: dictionary[column],
+          backgroundImage: "url(" + king1 + ")"
+        }:checkersType===4?{
+          top: dictionary[row],
+          left: dictionary[column],
+          backgroundImage: "url(" + king2 + ")"
+        }: {
           top: dictionary[row],
           left: dictionary[column]
-          //backgroundImage: "url(" + king1 + ")"
-        };          
+        };
 
         let myClassName=appState.hasSelectedItem&&appState.selectedItemRow===row&&appState.selectedItemColumn===column?"piece selected":"piece";
-        
       
-        values.push(<div key={countPieces.toString()} className={myClassName} id={"piece"+countPieces.toString()} style={divStyle} onClick={(e)=>handlePieceClick(row,column,e)}></div>);
+        values.push(<div key={Math.floor(checker/10).toString()} className={myClassName} id={"piece"+Math.floor(checker/10).toString()} style={divStyle} onClick={(e)=>handlePieceClick(row,column,e)}></div>);
+        // чтобы порядок не менялся при перемещении шашек в другие точки
+        // (иначе не будет плавной анимации, в случае, когда меняется порядок (даже при неизменных id))
+        keys.push({checker:checker, idx: countPieces});
         countPieces++;
       }
+
     }
   }
 
-  return  values;
+  keys.sort((a,b)=>a.checker-b.checker);
 
+  for (let i = 0; i < keys.length; i++) {  
+    values_sorted.push(values[keys[i].idx]);
+  }
+
+  return values_sorted;
 }
 
 function handleClearGameClick(e: any) {
   e.preventDefault();
-  //dispatch({type: 'test'});
+  dispatch({type: 'test'});
 
+  /*
   let checkers = new Game();
   let computerPlayer1 = new Computer(1, 3);
   let computerPlayer2 = new Computer(2, 3);
@@ -208,6 +227,7 @@ function handleClearGameClick(e: any) {
             break;
           }
         }
+  */      
 
 }
 
