@@ -1,6 +1,5 @@
 
 import Move from "./move";
-import Pair from "./pair";
 
 class Game {
     // 8x8 board composed of integers from -1 to 4.
@@ -31,6 +30,20 @@ class Game {
         newGame.timeLimit = game.timeLimit;
         return newGame;
     }
+
+    public setCurrentState(board: number[][], currentPlayer: number, timeLimit: number): void {
+        this.currentPlayer = currentPlayer;
+        this.timeLimit = timeLimit;
+
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                if (board[i][j]>=0)
+                    this.board[i][j] = board[i][j]%10;
+            }
+        }
+
+    }
+
 
     // initialize board as new game board
     newGame(): void {
@@ -197,7 +210,7 @@ class Game {
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if (this.currentPlayer === 1) {
-                    if (this.board[i][j] === 1 || this.board[i][j] === 3) {
+                    if (this.board[i][j]%10 === 1 || this.board[i][j]%10 === 3) {
                         this.getJumps(jumpMoves, null, this.board[i][j], i, j, state);
                         // stop looking for slide moves if we find any jump moves
                         if (jumpMoves.length===0) {
@@ -205,7 +218,7 @@ class Game {
                         }
                     }
                 } else {
-                    if (this.board[i][j] === 2 || this.board[i][j] === 4) {
+                    if (this.board[i][j]%10 === 2 || this.board[i][j]%10 === 4) {
                         this.getJumps(jumpMoves, null, this.board[i][j], i, j, state);
                         // stop looking for slide moves if we find any jump moves
                         if (jumpMoves.length===0) {
