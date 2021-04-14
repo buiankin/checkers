@@ -7,13 +7,13 @@ class Game {
     // 1 -> player 1 normal pieces, 2 -> player 2 normal pieces, 3 -> player 1 kings, 4 -> player 2 kings
     board: number[][]=[];
 
-    directions=[{y:1, x:1},{y:-1,x:1},{y:1,x:-1},{y:-1,x:-1}];
+    static directions=[{y:1, x:1},{y:-1,x:1},{y:1,x:-1},{y:-1,x:-1}];
 
     // set default starting player and time limit
     currentPlayer = 1;
     timeLimit = 3;
 
-    russianRules = true;
+    russianRules = false;
     // board colors
     //public const ANSI_RED = "\u001B[91m";
     //public const ANSI_WHITE_BACKGROUND = "\u001B[47m";
@@ -241,6 +241,7 @@ class Game {
         //ArrayList<Integer> endCol = new ArrayList<Integer>();
         let endRow: number[]=[];
         let endCol: number[]=[];
+        let kingMoves = [];
 
         switch (pieceType) {
             case 1:
@@ -264,8 +265,8 @@ class Game {
                     {
                         let y=startRow;
                         let x=startCol;
-                        let offset_y=this.directions[dir].y;
-                        let offset_x=this.directions[dir].x;
+                        let offset_y=Game.directions[dir].y;
+                        let offset_x=Game.directions[dir].x;
                         for (let offset=1; offset<=7; offset++)
                         {
                             y+=offset_y;
@@ -274,6 +275,7 @@ class Game {
                             if (y < 0 || y > 7 || x < 0 || x > 7) break;
                             endRow.push(y);
                             endCol.push(x);
+                            kingMoves.push({len: offset, dir_y: Game.directions[dir].y, dir_x: Game.directions[dir].x});
                         }
                     }
                 } else
@@ -297,6 +299,21 @@ class Game {
             if (endRow[i] < 0 || endRow[i] > 7 || endCol[i] < 0 || endCol[i] > 7) continue;
             // check if end position is occupied
             if (state[endRow[i]][endCol[i]] !== 0) continue;
+            if ((pieceType===3||pieceType===4)&&this.russianRules)
+            {
+                let cantMove=false;
+                let kingMove=kingMoves[i];
+                // если это дамка, то надо, чтобы в промежуточных положениях никого не было
+                for (let j=0; j<kingMoves[i].len; j++)
+                {
+                    if (state[startRow+kingMove.dir_y*j][startCol+kingMove.dir_x*j] !== 0)
+                    {
+                        cantMove=true;
+                        break;
+                    }
+                }
+
+            }
             // move was legal so add it to list
             moves.push(Move.fill_1(startRow, startCol, endRow[i], endCol[i], state));
         }
@@ -338,8 +355,8 @@ class Game {
                     // Дамка ходит (рубит) в любом направлении на любое расстояние
                     for (let dir=0; dir<4; dir++)
                     {
-                        let offset_y=this.directions[dir].y;
-                        let offset_x=this.directions[dir].x;
+                        let offset_y=Game.directions[dir].y;
+                        let offset_x=Game.directions[dir].x;
                         // здесь рубят
                         let y=startRow+offset_y;
                         let x=startCol+offset_x;

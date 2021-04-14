@@ -48,6 +48,7 @@ const label_coords =
   ];
 
 
+
 export const App: FC = memo(() => {
   const [appState, dispatch] = useReducer(reducer, initialState);
 
@@ -64,6 +65,12 @@ export const App: FC = memo(() => {
       dispatch({type: 'arrow_ok'});
   }
 
+  function processContinueMove()
+  {
+    dispatch({type: 'continue_move'});
+  }
+  
+
   React.useEffect(() => {
     window.addEventListener("keydown", downHandler);
     //window.addEventListener("keyup", upHandler);
@@ -71,8 +78,15 @@ export const App: FC = memo(() => {
     return () => {
       window.removeEventListener("keydown", downHandler);
       //window.removeEventListener("keyup", upHandler);
-    };
-  });  
+    }
+  });
+
+  React.useEffect(() => {
+    if (appState.isContiniousMoving!==0)
+    {
+      setTimeout(() => processContinueMove(), 3100);
+    }
+  }, [appState.isContiniousMoving]);
 
 
   function changePlayerTurn() {

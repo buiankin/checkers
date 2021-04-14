@@ -13,6 +13,11 @@ export const initialState = {
   hasArrowSelectedItem: false,
   arrowSelectedItemRow: 0, arrowSelectedItemColumn: 0,
 
+  // Здесь счетчик
+  isContiniousMoving: 0,
+  continiousMoving: [],
+  continiousCaptured: [],
+
   hasSelectedItem: false,
   selectedItemRow: 0, selectedItemColumn: 0,
 
@@ -63,6 +68,10 @@ type State = {
   hasSelectedItem: boolean,
   selectedItemRow: number, selectedItemColumn: number,
 
+  isContiniousMoving: number,
+  continiousMoving: {y: number, x: number}[],
+  continiousCaptured: {y: number, x: number}[],
+
   playerTurn: number,
   gameBoard: number[][],
   pieces : string[],
@@ -106,6 +115,9 @@ type Action =
   }
   | {
     type: "arrow_ok"
+  }
+  | {
+    type: "continue_move"
   }
   | {
     type: "test";
@@ -158,10 +170,22 @@ function doMove(state: State, move: Move)
     }
 
     newBoard[move.listVisitedRow[0]][move.listVisitedCol[0]] = checker;
-  
+
+    // 
+    let continiousMoving=[];
+    let continiousCaptured=[];
+    for (let i=0; i<move.listVisitedRow.length; i++)
+    {
+      continiousMoving.push({y:move.listVisitedRow[i], x:move.listVisitedCol[i]});
+      continiousCaptured.push({y:move.listCaptureRow[i], x:move.listCaptureCol[i]});
+    }
+    
     return {
       ...state,
-      gameBoard: newBoard
+      gameBoard: newBoard,
+      isContiniousMoving: 1,
+      continiousMoving: continiousMoving,
+      continiousCaptured: continiousCaptured
     };
   }
 
@@ -173,14 +197,11 @@ function doMove(state: State, move: Move)
     checker+=2;
   }
   newBoard[move.endRow][move.endCol] = checker;
-
-  
-
-
-  // Ход переходит
+ // Ход переходит
   return {
     ...state,
     gameBoard: newBoard,
+    isContiniousMoving: 0,
     playerTurn: state.playerTurn===1?2:1
   };
 }
@@ -254,8 +275,9 @@ export const reducer = (state: State, action: Action) => {
 
       return {
         ...state,
-        gameBoard: newBoard,
-        playerTurn: state.playerTurn===1?2:1
+        gameBoard: newBoard
+        // TODO включить переход хода
+        //playerTurn: state.playerTurn===1?2:1
       };
   
 
@@ -336,9 +358,18 @@ export const reducer = (state: State, action: Action) => {
             {
               let foundedMove=null;
               legalMoves.forEach(move => {
-                if (move.startRow===state.arrowSelectedItemRow&&move.startCol===state.arrowSelectedItemColumn)
+                if (move.listCaptureRow.length>0)
                 {
-                  foundedMove=move;
+                  if (move.initialRow===state.arrowSelectedItemRow&&move.initialCol===state.arrowSelectedItemColumn)
+                  {
+                    foundedMove=move;
+                  }
+                } else
+                {
+                  if (move.startRow===state.arrowSelectedItemRow&&move.startCol===state.arrowSelectedItemColumn)
+                  {
+                    foundedMove=move;
+                  }
                 }
               });
               if (foundedMove!==null)
@@ -428,8 +459,8 @@ export const reducer = (state: State, action: Action) => {
             let newState=doMove(state, move);
 
              return {
-               ...newState,
-               playerTurn: state.playerTurn===1?2:1
+               ...newState
+               //playerTurn: state.playerTurn===1?2:1
              };
        
 
@@ -443,6 +474,55 @@ export const reducer = (state: State, action: Action) => {
 
       return {
         ...state,
+        playerTurn: state.playerTurn===1?2:1
+      };
+    }
+
+    case "continue_move":
+    {
+      if (state.isContiniousMoving===0)
+        return state;
+
+      let newBoard: number[][]=[];
+      state.gameBoard.forEach(line => {
+       newBoard.push(line.slice());
+      });
+
+      // Тут будет 1,2,... потому, что нулевой ход уже сделан
+      let i=state.isContiniousMoving;
+      // Столько ходов осталось
+      let checker=newBoard[state.continiousMoving[i-1].y][state.continiousMoving[i-1].x];
+      // Откуда переместились
+      let restMoves=state.continiousMoving.length-state.isContiniousMoving;
+      newBoard[state.continiousMoving[i-1].y][state.continiousMoving[i-1].x]=0;
+      // Срубленные
+      newBoard[state.continiousCaptured[i].y][state.continiousCaptured[i].x]=0;
+      // Переход в дамки
+      if ((state.continiousMoving[i].y===7&&checker%10===1)||(state.continiousMoving[i].y===0&&checker%10===2))
+      {
+        checker+=2;
+      }
+      // Новая координата
+      newBoard[state.continiousMoving[i].y][state.continiousMoving[i].x] = checker;
+
+      if (restMoves>1)
+      {
+        // Ход не переходит
+        return {
+          ...state,
+          gameBoard: newBoard,
+          isContiniousMoving: state.isContiniousMoving+1
+        };
+      }
+    
+      // Обычный ход, либо последний срубленный
+    
+    
+      // Ход переходит
+      return {
+        ...state,
+        gameBoard: newBoard,
+        isContiniousMoving: 0,
         playerTurn: state.playerTurn===1?2:1
       };
     }
