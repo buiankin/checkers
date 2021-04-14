@@ -10,6 +10,11 @@ export const initialState = {
 
   //The initial setup
 
+  russianRules: true,
+  backwardDirection: false,
+  players: [{isRobot: true}, {isRobot:false}],
+
+  // с клавиатуры выбирали поле
   hasArrowSelectedItem: false,
   arrowSelectedItemRow: 0, arrowSelectedItemColumn: 0,
 
@@ -18,11 +23,14 @@ export const initialState = {
   continiousMoving: [],
   continiousCaptured: [],
 
+  // какая-то шашка выбрана. после любого хода сбрасывается
   hasSelectedItem: false,
   selectedItemRow: 0, selectedItemColumn: 0,
 
   playerTurn: 1,
   // 1 -> player 1 normal pieces, 2 -> player 2 normal pieces, 3 -> player 1 kings, 4 -> player 2 kings
+  // Нормальное начальное состояние
+  /*
   gameBoard : [
     [0, 11, 0, 21, 0, 31, 0, 41],
     [51, 0, 61, 0, 71, 0, 81, 0],
@@ -33,6 +41,59 @@ export const initialState = {
     [0, 172, 0, 182, 0, 192, 0, 202],
     [212, 0, 222, 0, 232, 0, 242, 0]
   ],
+  */
+  // нули для копирования
+  /*
+  gameBoard : [
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0]
+  ],
+  */
+
+
+  /*
+  gameBoard : [
+    [0, 0, 0, 0, 0, 0, 0, 11],
+    [21, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [12, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 22, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 33],
+    [0, 0, 0, 0, 0, 0, 0, 0]
+  ],
+  gameBoard : [
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 12, 0, 0, 0, 0, 0, 11],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 23, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0]
+  ],
+  */
+
+  gameBoard : [
+    [0, 11, 0, 21, 0, 0, 0, 41],
+    [51, 0, 61, 0, 71, 0, 81, 0],
+    [0, 91, 0, 0, 0, 111, 0, 0],
+    [202, 0, 0, 0, 501, 0, 0, 0],
+    [0, 0, 0, 0, 0, 401, 0, 402],
+    [134, 0, 0, 0, 0, 0, 0, 0],
+    [0, 172, 0, 182, 0, 0, 0, 0],
+    [212, 0, 222, 0, 232, 0, 242, 0]
+  ],
+
+
+
+
   //arrays to store the instances
   pieces : [],
   tiles : []
@@ -61,6 +122,10 @@ type State = {
 
   character: string,
   respectfulAppeal: boolean,
+
+  russianRules: boolean,
+  backwardDirection: boolean,
+  players: {isRobot: boolean}[],
 
   hasArrowSelectedItem: boolean,
   arrowSelectedItemRow: number, arrowSelectedItemColumn: number,
@@ -117,10 +182,10 @@ type Action =
     type: "arrow_ok"
   }
   | {
-    type: "continue_move"
+    type: "move_robot"; // первый ход робота (хотя можно запускать и чтобы робот сделал ход за человека его шашками)
   }
   | {
-    type: "test";
+    type: "continue_move_by_robot" // следующие ходы робота
   };
 
 
@@ -132,8 +197,7 @@ function getLegalMoves(state: State)
   checkers.newGame();
   // Текущее состояние
   checkers.setCurrentState(state.gameBoard, state.playerTurn, 1);
-  // дамки без этого не ходят
-  //checkers.getBoardStatus();
+  checkers.russianRules=state.russianRules;
   let legalMoves = checkers.getLegalMoves(checkers.board);
   return legalMoves;
 }  
@@ -160,7 +224,6 @@ function doMove(state: State, move: Move)
   if (move.listCaptureCol.length>1)
   {
     // Ход не переходит
-    // TODO сделать, что игрок может ходить дальше только этой шашкой и только продолжать рубить
     let checker=newBoard[move.initialRow][move.initialCol];
     newBoard[move.initialRow][move.initialCol] = 0;
 
@@ -179,13 +242,32 @@ function doMove(state: State, move: Move)
       continiousMoving.push({y:move.listVisitedRow[i], x:move.listVisitedCol[i]});
       continiousCaptured.push({y:move.listCaptureRow[i], x:move.listCaptureCol[i]});
     }
+
+    // Игрок может ходить дальше только этой шашкой и только продолжать рубить
+    if (state.players[state.playerTurn-1])
+    {
+      return {
+        ...state,
+        gameBoard: newBoard,
+        isContiniousMoving: 1,
+        continiousMoving: continiousMoving,
+        continiousCaptured: continiousCaptured,
+        // сразу выделим эту шашку
+        hasSelectedItem: true,
+        selectedItemRow: move.listVisitedRow[0], selectedItemCol:move.listVisitedCol[0]
+      };
+  
+    }
     
+    // Это робот
     return {
       ...state,
       gameBoard: newBoard,
       isContiniousMoving: 1,
       continiousMoving: continiousMoving,
-      continiousCaptured: continiousCaptured
+      continiousCaptured: continiousCaptured,
+      // не важно, что это робот, но после хода сбрасываем выделенную шашку
+      hasSelectedItem: false
     };
   }
 
@@ -202,7 +284,8 @@ function doMove(state: State, move: Move)
     ...state,
     gameBoard: newBoard,
     isContiniousMoving: 0,
-    playerTurn: state.playerTurn===1?2:1
+    playerTurn: state.playerTurn===1?2:1,
+    hasSelectedItem: false
   };
 }
 
@@ -413,7 +496,8 @@ export const reducer = (state: State, action: Action) => {
               return {
                 ...newState,
                 hasArrowSelectedItem: true,
-                hasSelectedItem: false
+                // это выставляется в doMove - если ходил игрок и дальше должен рубить этой же шашкой, то выделение остается
+                //hasSelectedItem: false
               };
 
             }
@@ -430,7 +514,7 @@ export const reducer = (state: State, action: Action) => {
   
 
 
-    case "test":
+    case "move_robot": // первый ход робота (хотя можно запускать и чтобы робот сделал ход за человека его шашками)
     {
       let checkers = new Game();
       let computerPlayer = new Computer(state.playerTurn, 1);
@@ -438,6 +522,7 @@ export const reducer = (state: State, action: Action) => {
       checkers.newGame();
       // Текущее состояние
       checkers.setCurrentState(state.gameBoard, state.playerTurn, 1);
+      checkers.russianRules=state.russianRules;
 
       let legalMoves = checkers.getLegalMoves(checkers.board);
       if (legalMoves.length===0) {
@@ -478,9 +563,11 @@ export const reducer = (state: State, action: Action) => {
       };
     }
 
-    case "continue_move":
+    case "continue_move_by_robot":
     {
-      if (state.isContiniousMoving===0)
+      // продолжаем только если это робот
+      // для человека просто ход ограничивается этой шашкой (и она при этом выделена всегда)
+      if (state.isContiniousMoving===0||!state.players[state.playerTurn-1].isRobot)
         return state;
 
       let newBoard: number[][]=[];

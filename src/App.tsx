@@ -52,23 +52,33 @@ const label_coords =
 export const App: FC = memo(() => {
   const [appState, dispatch] = useReducer(reducer, initialState);
 
-  function downHandler({key}: KeyboardEvent ) {
-    if (key==='ArrowDown')
+  function downHandler(e: KeyboardEvent ) {
+    if (e.key==='ArrowDown')
       dispatch({type: 'arrow_down'});
-    if (key==='ArrowUp')
+    if (e.key==='ArrowUp')
       dispatch({type: 'arrow_up'});
-    if (key==='ArrowLeft')
+    if (e.key==='ArrowLeft')
       dispatch({type: 'arrow_left'});
-    if (key==='ArrowRight')
+    if (e.key==='ArrowRight')
       dispatch({type: 'arrow_right'});
-    if (key==='Enter')
+    if (e.key==='Enter')
+    {
+      e.preventDefault();
       dispatch({type: 'arrow_ok'});
+    }
+
   }
 
   function processContinueMove()
   {
-    dispatch({type: 'continue_move'});
+    dispatch({type: 'continue_move_by_robot'});
   }
+
+  function processRobotMove()
+  {
+    dispatch({type: 'move_robot'});
+  }
+  
   
 
   React.useEffect(() => {
@@ -82,11 +92,25 @@ export const App: FC = memo(() => {
   });
 
   React.useEffect(() => {
-    if (appState.isContiniousMoving!==0)
+    // Обрабатываем изменения счетчика ходов, а также смены игрока
+    // если ход робота
+    if (appState.players[appState.playerTurn-1].isRobot)
     {
-      setTimeout(() => processContinueMove(), 3100);
+      // если продолжение, то ждем 3 секунды и двигаем дальше
+      if (appState.isContiniousMoving!==0)
+      {
+        setTimeout(() => processContinueMove(), 3100);
+      } else {
+        // надо сделать обычный ход
+        //dispatch({type: 'move_robot'});
+        // однако надо начать думать над ходом не раньше, чем доска отрисуется (0.2сек)
+        setTimeout(() => processRobotMove(), 210);
+
+      }
+    } else {
+      // играет человек
     }
-  }, [appState.isContiniousMoving]);
+  }, [appState.isContiniousMoving, appState.playerTurn]);
 
 
   function changePlayerTurn() {
@@ -218,7 +242,7 @@ function _renderPieces(playerId: number)
 
 function handleClearGameClick(e: any) {
   e.preventDefault();
-  dispatch({type: 'test'});
+  dispatch({type: 'move_robot'});
 
   /*
   let checkers = new Game();

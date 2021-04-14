@@ -13,6 +13,7 @@ class Game {
     currentPlayer = 1;
     timeLimit = 3;
 
+    // При запуске расчета кодов сюда запишется нужное значение (менять в store.ts)
     russianRules = false;
     // board colors
     //public const ANSI_RED = "\u001B[91m";
@@ -304,7 +305,8 @@ class Game {
                 let cantMove=false;
                 let kingMove=kingMoves[i];
                 // если это дамка, то надо, чтобы в промежуточных положениях никого не было
-                for (let j=0; j<kingMoves[i].len; j++)
+                // TODO и здесь тоже цикл сделал от 1 вместо 0, а то она проверяла сама себя
+                for (let j=1; j<kingMoves[i].len; j++)
                 {
                     if (state[startRow+kingMove.dir_y*j][startCol+kingMove.dir_x*j] !== 0)
                     {
@@ -312,6 +314,8 @@ class Game {
                         break;
                     }
                 }
+                if (cantMove)
+                    break;
 
             }
             // move was legal so add it to list
@@ -326,6 +330,7 @@ class Game {
         let endCol: number[]=[];
         let captureRow: number[]=[];
         let captureCol: number[]=[];
+        let kingMoves = [];
 
         if (this.russianRules)
         {
@@ -372,6 +377,8 @@ class Game {
                             endCol.push(x);
                             captureRow.push(y-offset_y);
                             captureCol.push(x-offset_x);
+                            // TODO
+                            kingMoves.push({len: offset, dir_y: Game.directions[dir].y, dir_x: Game.directions[dir].x});
                         }
                     }
                     break;
@@ -441,6 +448,25 @@ class Game {
             else {
                 // if move is null, make sure end position isn't occupied
                 if (state[endRow[i]][endCol[i]] !== 0) continue;
+                // TODO
+                if ((pieceType===3||pieceType===4)&&this.russianRules)
+                {
+                    let cantMove=false;
+                    let kingMove=kingMoves[i];
+                    // если это дамка, то надо, чтобы в промежуточных положениях никого не было
+                    // отличие от перемещения, тут на 1 итерацию меньше (начинается с 1)
+                    for (let j=1; j<kingMoves[i].len; j++)
+                    {
+                        if (state[startRow+kingMove.dir_y*j][startCol+kingMove.dir_x*j] !== 0)
+                        {
+                            cantMove=true;
+                            break;
+                        }
+                    }
+                    if (cantMove)
+                        break;
+                }
+    
             }
             // check if captured positions were occupied by the opposite player
             if (this.currentPlayer === 1 && !(state[captureRow[i]][captureCol[i]] === 2 || state[captureRow[i]][captureCol[i]] === 4)) continue;
