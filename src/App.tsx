@@ -34,7 +34,6 @@ import { initialState, reducer } from "./store";
 import { background } from '@sberdevices/plasma-tokens';
 import { Row } from '@sberdevices/ui';
 
-
 const dictionary = ["0vmin", "10vmin", "20vmin", "30vmin", "40vmin", "50vmin", "60vmin", "70vmin", "80vmin", "90vmin"];
 const label_coords =
   [[0,1,0,2,0,3,0,4],
@@ -46,6 +45,7 @@ const label_coords =
    [0,25,0,26,0,27,0,28],
    [29,0,30,0,31,0,32,0]
   ];
+
 
 
 
@@ -146,12 +146,12 @@ function _renderTiles()
         if (column % 2 === 0) {
 
           const divStyle = {
-            top: dictionary[row],
-            left: dictionary[column],
+            top: appState.backwardDirection?dictionary[7-row]:dictionary[row],
+            left: appState.backwardDirection?dictionary[7-column]:dictionary[column],
             color: "#FF3333"
           };          
       
-          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{label_coords[row][column].toString()}</div>);
+          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{label_coords[appState.backwardDirection?7-row:row][appState.backwardDirection?7-column:column].toString()}</div>);
           countTiles++;
 
         }
@@ -159,12 +159,12 @@ function _renderTiles()
         if (column % 2 === 1) {
           //countTiles = this.tileRender(row, column, countTiles)
           const divStyle = {
-            top: dictionary[row],
-            left: dictionary[column],
+            top: appState.backwardDirection?dictionary[7-row]:dictionary[row],
+            left: appState.backwardDirection?dictionary[7-column]:dictionary[column],
             color: "#FF3333"
           };          
       
-          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{label_coords[row][column].toString()}</div>);
+          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{label_coords[appState.backwardDirection?7-row:row][appState.backwardDirection?7-column:column].toString()}</div>);
           countTiles++;
 
         }
@@ -219,7 +219,7 @@ function _renderPieces(playerId: number)
           left: dictionary[column]
         };
 
-        let myClassName=appState.hasSelectedItem&&appState.selectedItemRow===row&&appState.selectedItemColumn===column?"piece selected":"piece";
+        let myClassName=appState.hasSelectedItem&&appState.selectedItemRow===row&&appState.selectedItemCol===column?"piece selected":"piece";
       
         values.push(<div key={Math.floor(checker/10).toString()} className={myClassName} id={"piece"+Math.floor(checker/10).toString()} style={divStyle} onClick={(e)=>handlePieceClick(row,column,e)}></div>);
         // чтобы порядок не менялся при перемещении шашек в другие точки
@@ -243,65 +243,6 @@ function _renderPieces(playerId: number)
 function handleClearGameClick(e: any) {
   e.preventDefault();
   dispatch({type: 'move_robot'});
-
-  /*
-  let checkers = new Game();
-  let computerPlayer1 = new Computer(1, 3);
-  let computerPlayer2 = new Computer(2, 3);
-  checkers.newGame();
-
-  let gameOver = false;
-  // actual game play
-  while (gameOver === false) {
-    let legalMoves: Move[]=[];
-    let moveNumber = -1;
-    switch(checkers.currentPlayer) {
-        case 1:
-            legalMoves = checkers.getLegalMoves(checkers.board);
-            if (legalMoves.length===0) {
-                gameOver = true;
-                console.log("Player 2 Wins!");
-                continue;
-            }
-            console.log("Player 1's Turn: ");
-            //checkers.printListMoves(legalMoves);
-            //if (player1IsComputer){
-                let move1 = computerPlayer1.alphaBetaSearch(checkers);
-                if (move1)
-                {
-                  checkers.applyMove(move1, checkers.board);
-                  console.log("Player 1 Chose: ");
-                  checkers.printMove(move1);
-                }
-            //}
-            //checkers.printNote();
-            //checkers.printBoard();
-            break;
-        case 2:
-            legalMoves = checkers.getLegalMoves(checkers.board);
-            if (legalMoves.length===0) {
-                gameOver = true;
-                console.log("Player 1 Wins!");
-                continue;
-            }
-            console.log("Player 2's Turn: ");
-            //engine.checkers.printListMoves(legalMoves);
-            //if (player2IsComputer) {
-                let move2 = computerPlayer2.alphaBetaSearch(checkers);
-                if (move2)
-                {
-                  checkers.applyMove(move2, checkers.board);
-                  console.log("Player 2 Chose: ");
-                  checkers.printMove(move2);
-                }
-            //}
-            //checkers.printNote();
-            //checkers.printBoard();
-            break;
-          }
-        }
-  */      
-
 }
 
 function handleKeyDown(e:any)
@@ -315,10 +256,17 @@ function _renderPult()
 
   if (appState.hasArrowSelectedItem)
   {
+    /*
+    const divStyle = {
+      top: appState.backwardDirection?dictionary[7-appState.arrowSelectedItemRow]:dictionary[appState.arrowSelectedItemRow],
+      left: appState.backwardDirection?dictionary[7-appState.arrowSelectedItemCol]:dictionary[appState.arrowSelectedItemCol]
+    };
+    */          
     const divStyle = {
       top: dictionary[appState.arrowSelectedItemRow],
-      left: dictionary[appState.arrowSelectedItemColumn]
-    };          
+      left: dictionary[appState.arrowSelectedItemCol]
+    };
+
 
     values.push(<div className="selection" style={divStyle}></div>);
   }

@@ -11,12 +11,12 @@ export const initialState = {
   //The initial setup
 
   russianRules: true,
-  backwardDirection: false,
-  players: [{isRobot: true}, {isRobot:false}],
+  backwardDirection: true,
+  players: [{isRobot: true}, {isRobot: false}],
 
   // с клавиатуры выбирали поле
   hasArrowSelectedItem: false,
-  arrowSelectedItemRow: 0, arrowSelectedItemColumn: 0,
+  arrowSelectedItemRow: 4, arrowSelectedItemCol: 4,
 
   // Здесь счетчик
   isContiniousMoving: 0,
@@ -25,12 +25,13 @@ export const initialState = {
 
   // какая-то шашка выбрана. после любого хода сбрасывается
   hasSelectedItem: false,
-  selectedItemRow: 0, selectedItemColumn: 0,
+  selectedItemRow: 0, selectedItemCol: 0,
 
-  playerTurn: 1,
+  // TODO backwardDirection-начинает 2, обычно 1
+  playerTurn: 2,
+
   // 1 -> player 1 normal pieces, 2 -> player 2 normal pieces, 3 -> player 1 kings, 4 -> player 2 kings
   // Нормальное начальное состояние
-  /*
   gameBoard : [
     [0, 11, 0, 21, 0, 31, 0, 41],
     [51, 0, 61, 0, 71, 0, 81, 0],
@@ -41,7 +42,6 @@ export const initialState = {
     [0, 172, 0, 182, 0, 192, 0, 202],
     [212, 0, 222, 0, 232, 0, 242, 0]
   ],
-  */
   // нули для копирования
   /*
   gameBoard : [
@@ -79,7 +79,7 @@ export const initialState = {
     [0, 0, 0, 0, 0, 0, 0, 0]
   ],
   */
-
+  /*
   gameBoard : [
     [0, 11, 0, 21, 0, 0, 0, 41],
     [51, 0, 61, 0, 71, 0, 81, 0],
@@ -90,9 +90,7 @@ export const initialState = {
     [0, 172, 0, 182, 0, 0, 0, 0],
     [212, 0, 222, 0, 232, 0, 242, 0]
   ],
-
-
-
+  */
 
   //arrays to store the instances
   pieces : [],
@@ -128,10 +126,10 @@ type State = {
   players: {isRobot: boolean}[],
 
   hasArrowSelectedItem: boolean,
-  arrowSelectedItemRow: number, arrowSelectedItemColumn: number,
+  arrowSelectedItemRow: number, arrowSelectedItemCol: number,
 
   hasSelectedItem: boolean,
-  selectedItemRow: number, selectedItemColumn: number,
+  selectedItemRow: number, selectedItemCol: number,
 
   isContiniousMoving: number,
   continiousMoving: {y: number, x: number}[],
@@ -351,8 +349,8 @@ export const reducer = (state: State, action: Action) => {
      if (state.hasSelectedItem)
      {
        // это для теста, чтобы можно было двигать любые фигуры
-       let color=newBoard[state.selectedItemRow][state.selectedItemColumn];
-      newBoard[state.selectedItemRow][state.selectedItemColumn] = 0;
+       let color=newBoard[state.selectedItemRow][state.selectedItemCol];
+      newBoard[state.selectedItemRow][state.selectedItemCol] = 0;
       newBoard[action.row][action.column] = color;// state.playerTurn;
      }
 
@@ -392,13 +390,14 @@ export const reducer = (state: State, action: Action) => {
       ...state,
       hasSelectedItem: true,
       selectedItemRow: action.row,
-      selectedItemColumn: action.column
+      selectedItemCol: action.column
     };
 
     case "arrow_down":
       return {
         ...state,
         hasArrowSelectedItem: true,
+        //arrowSelectedItemRow: !state.backwardDirection?(state.arrowSelectedItemRow>=7?7:state.arrowSelectedItemRow+1):(state.arrowSelectedItemRow>0?state.arrowSelectedItemRow-1:0)
         arrowSelectedItemRow: state.arrowSelectedItemRow>=7?7:state.arrowSelectedItemRow+1
       };
 
@@ -406,6 +405,7 @@ export const reducer = (state: State, action: Action) => {
       return {
         ...state,
         hasArrowSelectedItem: true,
+        //arrowSelectedItemRow: state.backwardDirection?(state.arrowSelectedItemRow>=7?7:state.arrowSelectedItemRow+1):(state.arrowSelectedItemRow>0?state.arrowSelectedItemRow-1:0)
         arrowSelectedItemRow: state.arrowSelectedItemRow>0?state.arrowSelectedItemRow-1:0
       };
 
@@ -413,7 +413,8 @@ export const reducer = (state: State, action: Action) => {
       return {
         ...state,
         hasArrowSelectedItem: true,
-        arrowSelectedItemColumn: state.arrowSelectedItemColumn>=7?7:state.arrowSelectedItemColumn+1
+        //arrowSelectedItemCol: !state.backwardDirection?(state.arrowSelectedItemCol>=7?7:state.arrowSelectedItemCol+1):(state.arrowSelectedItemCol>0?state.arrowSelectedItemCol-1:0)
+        arrowSelectedItemCol: state.arrowSelectedItemCol>=7?7:state.arrowSelectedItemCol+1
       };
 
 
@@ -421,7 +422,8 @@ export const reducer = (state: State, action: Action) => {
       return {
         ...state,
         hasArrowSelectedItem: true,
-        arrowSelectedItemColumn: state.arrowSelectedItemColumn>0?state.arrowSelectedItemColumn-1:0
+        //arrowSelectedItemCol: state.backwardDirection?(state.arrowSelectedItemCol>=7?7:state.arrowSelectedItemCol+1):(state.arrowSelectedItemCol>0?state.arrowSelectedItemCol-1:0)
+        arrowSelectedItemCol: state.arrowSelectedItemCol>0?state.arrowSelectedItemCol-1:0
       };
 
     case "arrow_ok":
@@ -429,7 +431,7 @@ export const reducer = (state: State, action: Action) => {
       // если не был курсор на экране, просто включим его, без обработки
       if (state.hasArrowSelectedItem)
       {
-        let checker=state.gameBoard[state.arrowSelectedItemRow][state.arrowSelectedItemColumn];
+        let checker=state.gameBoard[state.arrowSelectedItemRow][state.arrowSelectedItemCol];
         // поле, где есть шашка
         if (checker>0)
         {
@@ -443,13 +445,13 @@ export const reducer = (state: State, action: Action) => {
               legalMoves.forEach(move => {
                 if (move.listCaptureRow.length>0)
                 {
-                  if (move.initialRow===state.arrowSelectedItemRow&&move.initialCol===state.arrowSelectedItemColumn)
+                  if (move.initialRow===state.arrowSelectedItemRow&&move.initialCol===state.arrowSelectedItemCol)
                   {
                     foundedMove=move;
                   }
                 } else
                 {
-                  if (move.startRow===state.arrowSelectedItemRow&&move.startCol===state.arrowSelectedItemColumn)
+                  if (move.startRow===state.arrowSelectedItemRow&&move.startCol===state.arrowSelectedItemCol)
                   {
                     foundedMove=move;
                   }
@@ -463,7 +465,7 @@ export const reducer = (state: State, action: Action) => {
                   hasArrowSelectedItem: true,
                   hasSelectedItem: true,
                   selectedItemRow: state.arrowSelectedItemRow,
-                  selectedItemColumn: state.arrowSelectedItemColumn
+                  selectedItemCol: state.arrowSelectedItemCol
                 };
   
               }
@@ -481,10 +483,10 @@ export const reducer = (state: State, action: Action) => {
               if (move.listCaptureCol.length>0)
               {
                 // если есть срубленные, надо смотреть координаты initial 
-                if (move.initialRow===state.selectedItemRow&&move.initialCol===state.selectedItemColumn&&move.listVisitedRow[0]===state.arrowSelectedItemRow&&move.listVisitedCol[0]===state.arrowSelectedItemColumn)
+                if (move.initialRow===state.selectedItemRow&&move.initialCol===state.selectedItemCol&&move.listVisitedRow[0]===state.arrowSelectedItemRow&&move.listVisitedCol[0]===state.arrowSelectedItemCol)
                   foundedMove=move;
               } else {
-                if (move.startRow===state.selectedItemRow&&move.startCol===state.selectedItemColumn&&move.endRow===state.arrowSelectedItemRow&&move.endCol===state.arrowSelectedItemColumn)
+                if (move.startRow===state.selectedItemRow&&move.startCol===state.selectedItemCol&&move.endRow===state.arrowSelectedItemRow&&move.endCol===state.arrowSelectedItemCol)
                   foundedMove=move;
               }
           });
@@ -521,7 +523,7 @@ export const reducer = (state: State, action: Action) => {
       // Важно, чтобы -1 заполнились там, где нельзя ничего ставить
       checkers.newGame();
       // Текущее состояние
-      checkers.setCurrentState(state.gameBoard, state.playerTurn, 1);
+      checkers.setCurrentState(state.gameBoard, state.playerTurn, 3);
       checkers.russianRules=state.russianRules;
 
       let legalMoves = checkers.getLegalMoves(checkers.board);

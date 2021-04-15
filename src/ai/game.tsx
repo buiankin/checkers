@@ -315,7 +315,7 @@ class Game {
                     }
                 }
                 if (cantMove)
-                    break;
+                    continue;
 
             }
             // move was legal so add it to list
@@ -448,26 +448,27 @@ class Game {
             else {
                 // if move is null, make sure end position isn't occupied
                 if (state[endRow[i]][endCol[i]] !== 0) continue;
-                // TODO
-                if ((pieceType===3||pieceType===4)&&this.russianRules)
-                {
-                    let cantMove=false;
-                    let kingMove=kingMoves[i];
-                    // если это дамка, то надо, чтобы в промежуточных положениях никого не было
-                    // отличие от перемещения, тут на 1 итерацию меньше (начинается с 1)
-                    for (let j=1; j<kingMoves[i].len; j++)
-                    {
-                        if (state[startRow+kingMove.dir_y*j][startCol+kingMove.dir_x*j] !== 0)
-                        {
-                            cantMove=true;
-                            break;
-                        }
-                    }
-                    if (cantMove)
-                        break;
-                }
-    
             }
+
+            if ((pieceType===3||pieceType===4)&&this.russianRules)
+            {
+                let cantMove=false;
+                let kingMove=kingMoves[i];
+                // если это дамка, то надо, чтобы в промежуточных положениях никого не было
+                // отличие от перемещения, тут на 1 итерацию меньше (начинается с 1)
+                for (let j=1; j<kingMoves[i].len; j++)
+                {
+                    if (state[startRow+kingMove.dir_y*j][startCol+kingMove.dir_x*j] !== 0)
+                    {
+                        cantMove=true;
+                        break;
+                    }
+                }
+                if (cantMove)
+                    continue;
+            }
+
+
             // check if captured positions were occupied by the opposite player
             if (this.currentPlayer === 1 && !(state[captureRow[i]][captureCol[i]] === 2 || state[captureRow[i]][captureCol[i]] === 4)) continue;
 
