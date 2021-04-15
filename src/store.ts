@@ -1,3 +1,4 @@
+
 import Game from './ai/game';
 import Computer from './ai/computer';
 import Move from './ai/move';
@@ -10,9 +11,17 @@ export const initialState = {
 
   //The initial setup
 
-  russianRules: true,
+  russianRules: false,
+  /*
   backwardDirection: true,
   players: [{isRobot: true}, {isRobot: false}],
+  playerTurn: 2,
+  */
+
+  backwardDirection: false,
+  players: [{isRobot: false}, {isRobot: true}],
+  playerTurn: 1,
+
 
   // с клавиатуры выбирали поле
   hasArrowSelectedItem: false,
@@ -27,18 +36,15 @@ export const initialState = {
   hasSelectedItem: false,
   selectedItemRow: 0, selectedItemCol: 0,
 
-  // TODO backwardDirection-начинает 2, обычно 1
-  playerTurn: 2,
-
   // 1 -> player 1 normal pieces, 2 -> player 2 normal pieces, 3 -> player 1 kings, 4 -> player 2 kings
   // Нормальное начальное состояние
   gameBoard : [
     [0, 11, 0, 21, 0, 31, 0, 41],
     [51, 0, 61, 0, 71, 0, 81, 0],
-    [0, 91, 0, 103, 0, 111, 0, 121],
+    [0, 91, 0, 101, 0, 111, 0, 121],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [134, 0, 142, 0, 152, 0, 162, 0],
+    [132, 0, 142, 0, 152, 0, 162, 0],
     [0, 172, 0, 182, 0, 192, 0, 202],
     [212, 0, 222, 0, 232, 0, 242, 0]
   ],
@@ -90,7 +96,19 @@ export const initialState = {
     [0, 172, 0, 182, 0, 0, 0, 0],
     [212, 0, 222, 0, 232, 0, 242, 0]
   ],
+
+  gameBoard : [
+    [0, 0, 0, 0, 0, 24, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 12, 0, 0, 0, 11, 0, 21],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [32, 0, 42, 0, 0, 0, 52, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 62, 0, 0, 0, 0, 0]
+  ],
   */
+
 
   //arrays to store the instances
   pieces : [],
@@ -124,6 +142,7 @@ type State = {
   russianRules: boolean,
   backwardDirection: boolean,
   players: {isRobot: boolean}[],
+  playerTurn: number,
 
   hasArrowSelectedItem: boolean,
   arrowSelectedItemRow: number, arrowSelectedItemCol: number,
@@ -135,7 +154,6 @@ type State = {
   continiousMoving: {y: number, x: number}[],
   continiousCaptured: {y: number, x: number}[],
 
-  playerTurn: number,
   gameBoard: number[][],
   pieces : string[],
   tiles : string[]
@@ -190,7 +208,7 @@ type Action =
 function getLegalMoves(state: State)
 {
   // Есть ли эта шашка возможных ходах
-  let checkers = new Game();
+  let checkers = Game.EmptyGameStatic();
   // Важно, чтобы -1 заполнились там, где нельзя ничего ставить
   checkers.newGame();
   // Текущее состояние
@@ -518,7 +536,7 @@ export const reducer = (state: State, action: Action) => {
 
     case "move_robot": // первый ход робота (хотя можно запускать и чтобы робот сделал ход за человека его шашками)
     {
-      let checkers = new Game();
+      let checkers = Game.EmptyGameStatic();
       let computerPlayer = new Computer(state.playerTurn, 1);
       // Важно, чтобы -1 заполнились там, где нельзя ничего ставить
       checkers.newGame();

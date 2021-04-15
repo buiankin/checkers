@@ -46,6 +46,16 @@ const label_coords =
    [29,0,30,0,31,0,32,0]
   ];
 
+const label_coords_backwards =
+  [[0,29,0,30,0,31,0,32],
+   [25,0,26,0,27,0,28,0],
+   [0,21,0,22,0,23,0,24],
+   [17,0,18,0,19,0,20,0],
+   [0,13,0,14,0,15,0,16],
+   [9,0,10,0,11,0,12,0],
+   [0,5,0,6,0,7,0,8],
+   [1,0,2,0,3,0,4,0]
+  ];
 
 
 
@@ -110,7 +120,7 @@ export const App: FC = memo(() => {
     } else {
       // играет человек
     }
-  }, [appState.isContiniousMoving, appState.playerTurn]);
+  }, [appState.isContiniousMoving, appState.playerTurn, appState.players]);
 
 
   function changePlayerTurn() {
@@ -151,7 +161,7 @@ function _renderTiles()
             color: "#FF3333"
           };          
       
-          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{label_coords[appState.backwardDirection?7-row:row][appState.backwardDirection?7-column:column].toString()}</div>);
+          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{(appState.backwardDirection?(label_coords_backwards[7-row][7-column]):label_coords[row][column]).toString()}</div>);
           countTiles++;
 
         }
@@ -164,7 +174,7 @@ function _renderTiles()
             color: "#FF3333"
           };          
       
-          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{label_coords[appState.backwardDirection?7-row:row][appState.backwardDirection?7-column:column].toString()}</div>);
+          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{(appState.backwardDirection?(label_coords_backwards[7-row][7-column]):label_coords[row][column]).toString()}</div>);
           countTiles++;
 
         }
