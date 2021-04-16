@@ -165,6 +165,10 @@ type Action =
     type: "init";
   }
   | {
+    type: "character";
+    character_id: string;
+  }
+  | {
     type: "go";
     coord: number;
     }
@@ -308,6 +312,12 @@ function doMove(state: State, move: Move)
 export const reducer = (state: State, action: Action) => {
 
   switch (action.type) {
+
+    case "character":
+      return {
+        ...state,
+        character: action.character_id, respectfulAppeal: action.character_id!=='joy'
+      }
 
     case "go":
       return {

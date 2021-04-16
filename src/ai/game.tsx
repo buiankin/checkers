@@ -20,10 +20,12 @@ class Game {
     //public const ANSI_WHITE_BACKGROUND = "\u001B[47m";
     //public const ANSI_CYAN = "\u001B[96m";
     //public const ANSI_RESET = "\u001B[0m";
-    // empty constructor
-    constructor() {
-
+    public static EmptyGameStatic()
+    {
+        let newGame=new Game();
+        return newGame;
     }
+
     // copy constructor, used for when AI needs to apply minimax algorithm
     public static Game(game: Game) {
         let newGame=new Game();

@@ -13,13 +13,12 @@ import React, {
   memo,
   useReducer,
   //useState,
-  //useRef,
-  //useEffect,
+  useRef,
+  useEffect,
   //useLayoutEffect,
   //RefObject,
 } from 'react';
 
-/*
 import {
   createSmartappDebugger,
   createAssistant,
@@ -28,7 +27,6 @@ import {
   AssistantSmartAppData,
   AssistantCharacterType
 } from "@sberdevices/assistant-client";
-*/
 
 import { initialState, reducer } from "./store";
 import { background } from '@sberdevices/plasma-tokens';
@@ -57,10 +55,67 @@ const label_coords_backwards =
    [1,0,2,0,3,0,4,0]
   ];
 
+const initializeAssistant = (getState: any) => {
+    console.log('process.env.NODE_ENV=');
+    console.log(process.env.NODE_ENV);
+    if (process.env.NODE_ENV === "development") {
+      return createSmartappDebugger({
+        token: process.env.REACT_APP_TOKEN ?? "",
+        initPhrase: `Запусти ${process.env.REACT_APP_SMARTAPP}`,
+        getState,
+      });
+    }
+  
+    return createAssistant({ getState });
+};
+  
 
 
 export const App: FC = memo(() => {
   const [appState, dispatch] = useReducer(reducer, initialState);
+
+  const assistantStateRef = useRef<AssistantAppState>();
+  const assistantRef = useRef<ReturnType<typeof createAssistant>>();
+
+  // TODO assistant.Close
+
+
+  useEffect(() => {
+
+    //dispatch({type: 'init'});
+
+    assistantRef.current = initializeAssistant(() => assistantStateRef.current);
+
+    //assistantRef.current.on("start", () => {
+    //  alert("Start!");
+    //});
+
+    assistantRef.current.on("data", ({ type, character, navigation, action, insets }: any) => {
+      // Из-за того, что React.Strict несмотря на то, что вызов я делаю 1 раз, dispatch срабатывае дважды
+      // поэтому сделаем счетчик
+      // AssistantCharacterCommand
+      if (character)
+      {
+        // TODO брать respectfulAppeal из character
+        // 'sber' | 'eva' | 'joy';
+        //setAppState({...appState, character: character.id, respectfulAppeal: character.id!=='joy'});
+        dispatch({type: 'character', character_id: character.id});
+      }
+      // AssistantServerAction
+      if (action) {
+        dispatch(action);
+      }
+      // AssistantInsetsCommand - команда, которая сообщает смартапу о том, что поверх него будет отображен нативный UI и его размеры.
+      if (insets)
+      {
+        //alert("left="+insets.left+", top="+insets.top+", right="+insets.right+", bottom="+insets.bottom);
+      }
+    });
+
+
+
+  }, []);
+  
 
   function downHandler(e: KeyboardEvent ) {
     if (e.key==='ArrowDown')
@@ -89,9 +144,8 @@ export const App: FC = memo(() => {
     dispatch({type: 'move_robot'});
   }
   
-  
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener("keydown", downHandler);
     //window.addEventListener("keyup", upHandler);
 
@@ -101,7 +155,7 @@ export const App: FC = memo(() => {
     }
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Обрабатываем изменения счетчика ходов, а также смены игрока
     // если ход робота
     if (appState.players[appState.playerTurn-1].isRobot)
