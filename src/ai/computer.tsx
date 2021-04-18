@@ -53,7 +53,7 @@ class Computer
             for (let i=0; i<legalMovesList.length; i++)
             {
                 let move=legalMovesList[i];
-                let copy = Game.Game(game);
+                let copy = Game.GameStatic(game);
                 copy.applyMove(move, copy.board);
                 //let min = this.minVal(copy, Number.MIN_VALUE, Number.MAX_VALUE, 0);
                 let min = this.minVal(copy, Number.NEGATIVE_INFINITY, Number.MAX_VALUE, 0);
@@ -346,7 +346,7 @@ class Computer
         }
         let v = Number.NEGATIVE_INFINITY;
         listLegalMoves.forEach(move => {
-            let copyGame = Game.Game(game);
+            let copyGame = Game.GameStatic(game);
             copyGame.applyMove(move, copyGame.board);
             v = Math.max(v, this.minVal(copyGame, alpha, beta, depth + 1));
             if (v >= beta) return v;
@@ -370,7 +370,7 @@ class Computer
         }
         let v = Number.MAX_VALUE;
         listLegalMoves.forEach(move => {
-            let copyGame = Game.Game(game);
+            let copyGame = Game.GameStatic(game);
             copyGame.applyMove(move, copyGame.board);
             v = Math.min(v, this.maxVal(copyGame, alpha, beta, depth + 1));
             if (v <= alpha) return v;

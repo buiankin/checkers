@@ -2,6 +2,7 @@
 import Game from './ai/game';
 import Computer from './ai/computer';
 import Move from './ai/move';
+import { debug } from 'node:console';
 
 
 export const initialState = { 
@@ -169,6 +170,14 @@ type Action =
     character_id: string;
   }
   | {
+    type: "change_direction";
+    data: any;
+  }
+  | {
+    type: "fire123";
+    data: any;
+  }
+  | {
     type: "go";
     coord: number;
     }
@@ -317,6 +326,18 @@ export const reducer = (state: State, action: Action) => {
       return {
         ...state,
         character: action.character_id, respectfulAppeal: action.character_id!=='joy'
+      }
+
+    case "change_direction":
+      console.log("change_direction");
+      return {
+        ...state
+      }
+
+    case "fire123":
+      console.log("fire123");
+      return {
+        ...state
       }
 
     case "go":
