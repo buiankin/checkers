@@ -110,6 +110,10 @@ export const App: FC = memo(() => {
       {
         //alert("left="+insets.left+", top="+insets.top+", right="+insets.right+", bottom="+insets.bottom);
       }
+      if (type==='close_app')
+      {
+        assistantRef?.current?.close();
+      }
     });
 
 
