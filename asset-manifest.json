@@ -1,22 +1,22 @@
 {
   "files": {
     "main.css": "/checkers/static/css/main.74ba1f90.chunk.css",
-    "main.js": "/checkers/static/js/main.4a4f35c8.chunk.js",
-    "main.js.map": "/checkers/static/js/main.4a4f35c8.chunk.js.map",
-    "runtime-main.js": "/checkers/static/js/runtime-main.18fe6c21.js",
-    "runtime-main.js.map": "/checkers/static/js/runtime-main.18fe6c21.js.map",
-    "static/js/2.34d3cba9.chunk.js": "/checkers/static/js/2.34d3cba9.chunk.js",
-    "static/js/2.34d3cba9.chunk.js.map": "/checkers/static/js/2.34d3cba9.chunk.js.map",
-    "static/js/3.a92f0beb.chunk.js": "/checkers/static/js/3.a92f0beb.chunk.js",
-    "static/js/3.a92f0beb.chunk.js.map": "/checkers/static/js/3.a92f0beb.chunk.js.map",
+    "main.js": "/checkers/static/js/main.b8419f53.chunk.js",
+    "main.js.map": "/checkers/static/js/main.b8419f53.chunk.js.map",
+    "runtime-main.js": "/checkers/static/js/runtime-main.640e75e1.js",
+    "runtime-main.js.map": "/checkers/static/js/runtime-main.640e75e1.js.map",
+    "static/js/2.61ead1cd.chunk.js": "/checkers/static/js/2.61ead1cd.chunk.js",
+    "static/js/2.61ead1cd.chunk.js.map": "/checkers/static/js/2.61ead1cd.chunk.js.map",
+    "static/js/3.d83e3c50.chunk.js": "/checkers/static/js/3.d83e3c50.chunk.js",
+    "static/js/3.d83e3c50.chunk.js.map": "/checkers/static/js/3.d83e3c50.chunk.js.map",
     "index.html": "/checkers/index.html",
     "static/css/main.74ba1f90.chunk.css.map": "/checkers/static/css/main.74ba1f90.chunk.css.map",
-    "static/js/2.34d3cba9.chunk.js.LICENSE.txt": "/checkers/static/js/2.34d3cba9.chunk.js.LICENSE.txt"
+    "static/js/2.61ead1cd.chunk.js.LICENSE.txt": "/checkers/static/js/2.61ead1cd.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.18fe6c21.js",
-    "static/js/2.34d3cba9.chunk.js",
+    "static/js/runtime-main.640e75e1.js",
+    "static/js/2.61ead1cd.chunk.js",
     "static/css/main.74ba1f90.chunk.css",
-    "static/js/main.4a4f35c8.chunk.js"
+    "static/js/main.b8419f53.chunk.js"
   ]
 }
