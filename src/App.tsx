@@ -90,7 +90,7 @@ export const App: FC = memo(() => {
     //  alert("Start!");
     //});
 
-    assistantRef.current.on("data", ({ type, character, navigation, action, insets }: any) => {
+    assistantRef.current.on("data", ({ type, character, navigation, action, insets, command }: any) => {
       // Из-за того, что React.Strict несмотря на то, что вызов я делаю 1 раз, dispatch срабатывае дважды
       // поэтому сделаем счетчик
       // AssistantCharacterCommand
@@ -110,6 +110,25 @@ export const App: FC = memo(() => {
       {
         //alert("left="+insets.left+", top="+insets.top+", right="+insets.right+", bottom="+insets.bottom);
       }
+      if (navigation) {
+        switch(navigation.command) {
+            case 'UP':
+              dispatch({type: 'arrow_up'});
+              break;
+            case 'DOWN':
+              dispatch({type: 'arrow_down'});
+              break;
+            case 'LEFT':
+              dispatch({type: 'arrow_left'});
+              break;
+            case 'RIGHT':
+              dispatch({type: 'arrow_right'});
+              break;
+            case 'FORWARD':
+              dispatch({type: 'arrow_ok'});
+              break;
+        }
+    }      
       if (type==='close_app')
       {
         assistantRef?.current?.close();
@@ -123,20 +142,35 @@ export const App: FC = memo(() => {
 
   function downHandler(e: KeyboardEvent ) {
     if (e.key==='ArrowDown')
+    {
+      e.preventDefault();
       dispatch({type: 'arrow_down'});
+    }
     if (e.key==='ArrowUp')
+    {
+      e.preventDefault();
       dispatch({type: 'arrow_up'});
+    }
     if (e.key==='ArrowLeft')
+    {
+      e.preventDefault();
       dispatch({type: 'arrow_left'});
+    }
     if (e.key==='ArrowRight')
+    {
+      e.preventDefault();
       dispatch({type: 'arrow_right'});
+    }
     if (e.key==='Enter')
     {
       e.preventDefault();
       dispatch({type: 'arrow_ok'});
     }
-
   }
+
+  function upHandler(e: KeyboardEvent ) {
+  }
+  
 
   function processContinueMove()
   {
@@ -151,11 +185,11 @@ export const App: FC = memo(() => {
 
   useEffect(() => {
     window.addEventListener("keydown", downHandler);
-    //window.addEventListener("keyup", upHandler);
+    window.addEventListener("keyup", upHandler);
 
     return () => {
       window.removeEventListener("keydown", downHandler);
-      //window.removeEventListener("keyup", upHandler);
+      window.removeEventListener("keyup", upHandler);
     }
   });
 
@@ -172,7 +206,7 @@ export const App: FC = memo(() => {
         // надо сделать обычный ход
         //dispatch({type: 'move_robot'});
         // однако надо начать думать над ходом не раньше, чем доска отрисуется (0.2сек)
-        setTimeout(() => processRobotMove(), 210);
+        setTimeout(() => processRobotMove(), 410);
 
       }
     } else {

@@ -318,6 +318,90 @@ function doMove(state: State, move: Move)
   };
 }
 
+function processCellPress(state: State, row: number, col: number): State
+{
+
+  let checker=state.gameBoard[row][col];
+  // поле, где есть шашка
+  if (checker>0)
+  {
+    // если это шашка игрока
+    if (checker%10===state.playerTurn||checker%10===state.playerTurn+2)
+    {
+      let legalMoves=getLegalMoves(state);
+      if (legalMoves.length!==0)
+      {
+        let foundedMove=null;
+        legalMoves.forEach(move => {
+          if (move.listCaptureRow.length>0)
+          {
+            if (move.initialRow===row&&move.initialCol===col)
+            {
+              foundedMove=move;
+            }
+          } else
+          {
+            if (move.startRow===row&&move.startCol===col)
+            {
+              foundedMove=move;
+            }
+          }
+        });
+        if (foundedMove!==null)
+        {
+          // Выделаем шашку, которой собрался ходить игрок
+          return {
+            ...state,
+            //hasArrowSelectedItem: true,
+            hasSelectedItem: true,
+            selectedItemRow: row,
+            selectedItemCol: col
+          };
+
+        }
+      }
+    }
+  } else
+  if (checker===0)
+  {
+    // пустое поле, если сюда выделенная шашка ходит, то делаем ход
+    if (state.hasSelectedItem)
+    {
+      let legalMoves=getLegalMoves(state);
+      let foundedMove=null;
+      legalMoves.forEach(move => {
+        if (move.listCaptureCol.length>0)
+        {
+          // если есть срубленные, надо смотреть координаты initial 
+          if (move.initialRow===state.selectedItemRow&&move.initialCol===state.selectedItemCol&&move.listVisitedRow[0]===row&&move.listVisitedCol[0]===col)
+            foundedMove=move;
+        } else {
+          if (move.startRow===state.selectedItemRow&&move.startCol===state.selectedItemCol&&move.endRow===row&&move.endCol===col)
+            foundedMove=move;
+        }
+    });
+      if (foundedMove!==null)
+      {
+        // делаем ход
+        let newState=doMove(state, foundedMove);
+        //
+        return {
+          ...newState,
+          //hasArrowSelectedItem: true,
+          // это выставляется в doMove - если ходил игрок и дальше должен рубить этой же шашкой, то выделение остается
+          //hasSelectedItem: false
+        };
+
+      }
+
+    }
+  }
+
+  // что-то надо все равно вернуть
+  return state;
+
+}
+
 export const reducer = (state: State, action: Action) => {
 
   switch (action.type) {
@@ -352,44 +436,9 @@ export const reducer = (state: State, action: Action) => {
 
 
     case "tile_click":
+    {
       //move piece when tile is clicked
-
       /*
-    //make sure a piece is selected
-    if ($('.selected').length != 0) {
-      //find the tile object being clicked
-      var tileID = $(this).attr("id").replace(/tile/, '');
-      var tile = tiles[tileID];
-      //find the piece being selected
-      var piece = pieces[$('.selected').attr("id")];
-      //check if the tile is in range from the object
-      var inRange = tile.inRange(piece);
-      if (inRange != 'wrong') {
-        //if the move needed is jump, then move it but also check if another move can be made (double and triple jumps)
-        if (inRange == 'jump') {
-          if (piece.opponentJump(tile)) {
-            piece.move(tile);
-            if (piece.canJumpAny()) {
-              // Board.changePlayerTurn(); //change back to original since another turn can be made
-              piece.element.addClass('selected');
-              // exist continuous jump, you are not allowed to de-select this piece or select other pieces
-              Board.continuousjump = true;
-            } else {
-              Board.changePlayerTurn()
-            }
-          }
-          //if it's regular then move it if no jumping is available
-        } else if (inRange == 'regular' && !Board.jumpexist) {
-          if (!piece.canJumpAny()) {
-            piece.move(tile);
-            Board.changePlayerTurn()
-          } else {
-            alert("You must jump when possible!");
-          }
-        }
-      }
-    }
-      */
      let newBoard: number[][]=[];
      state.gameBoard.forEach(line => {
       newBoard.push(line.slice());
@@ -409,38 +458,35 @@ export const reducer = (state: State, action: Action) => {
         // TODO включить переход хода
         //playerTurn: state.playerTurn===1?2:1
       };
+      */
+      let newState=processCellPress(state, action.row, action.column);
+      return newState;
+      /*
+      return {
+        ...newState,
+        hasSelectedItem: true,
+        selectedItemRow: action.row,
+        selectedItemCol: action.column
+      };
+      */
+    }
   
 
     case "piece_click":
+    {
       //select the piece on click if it is the player's turn
 
-    /*
-    var selected;
-    var isPlayersTurn = ($(this).parent().attr("class").split(' ')[0] == "player" + Board.playerTurn + "pieces");
-    if (isPlayersTurn) {
-      if (!Board.continuousjump && pieces[$(this).attr("id")].allowedtomove) {
-        if ($(this).hasClass('selected')) selected = true;
-        $('.piece').each(function (index) {
-          $('.piece').eq(index).removeClass('selected')
-        });
-        if (!selected) {
-          $(this).addClass('selected');
-        }
-      } else {
-        let exist = "jump exist for other pieces, that piece is not allowed to move"
-        let continuous = "continuous jump exist, you have to jump the same piece"
-        let message = !Board.continuousjump ? exist : continuous
-        console.log(message)
-      }
+      let newState=processCellPress(state, action.row, action.column);
+      return newState;
+      /*
+      return {
+        ...newState,
+        hasSelectedItem: true,
+        selectedItemRow: action.row,
+        selectedItemCol: action.column
+      };
+      */
     }
-
-    */
-    return {
-      ...state,
-      hasSelectedItem: true,
-      selectedItemRow: action.row,
-      selectedItemCol: action.column
-    };
 
     case "arrow_down":
       return {
@@ -480,82 +526,7 @@ export const reducer = (state: State, action: Action) => {
       // если не был курсор на экране, просто включим его, без обработки
       if (state.hasArrowSelectedItem)
       {
-        let checker=state.gameBoard[state.arrowSelectedItemRow][state.arrowSelectedItemCol];
-        // поле, где есть шашка
-        if (checker>0)
-        {
-          // если это шашка игрока
-          if (checker%10===state.playerTurn||checker%10===state.playerTurn+2)
-          {
-            let legalMoves=getLegalMoves(state);
-            if (legalMoves.length!==0)
-            {
-              let foundedMove=null;
-              legalMoves.forEach(move => {
-                if (move.listCaptureRow.length>0)
-                {
-                  if (move.initialRow===state.arrowSelectedItemRow&&move.initialCol===state.arrowSelectedItemCol)
-                  {
-                    foundedMove=move;
-                  }
-                } else
-                {
-                  if (move.startRow===state.arrowSelectedItemRow&&move.startCol===state.arrowSelectedItemCol)
-                  {
-                    foundedMove=move;
-                  }
-                }
-              });
-              if (foundedMove!==null)
-              {
-                // Выделаем шашку, которой собрался ходить игрок
-                return {
-                  ...state,
-                  hasArrowSelectedItem: true,
-                  hasSelectedItem: true,
-                  selectedItemRow: state.arrowSelectedItemRow,
-                  selectedItemCol: state.arrowSelectedItemCol
-                };
-  
-              }
-            }
-          }
-        } else
-        if (checker===0)
-        {
-          // пустое поле, если сюда выделенная шашка ходит, то делаем ход
-          if (state.hasSelectedItem)
-          {
-            let legalMoves=getLegalMoves(state);
-            let foundedMove=null;
-            legalMoves.forEach(move => {
-              if (move.listCaptureCol.length>0)
-              {
-                // если есть срубленные, надо смотреть координаты initial 
-                if (move.initialRow===state.selectedItemRow&&move.initialCol===state.selectedItemCol&&move.listVisitedRow[0]===state.arrowSelectedItemRow&&move.listVisitedCol[0]===state.arrowSelectedItemCol)
-                  foundedMove=move;
-              } else {
-                if (move.startRow===state.selectedItemRow&&move.startCol===state.selectedItemCol&&move.endRow===state.arrowSelectedItemRow&&move.endCol===state.arrowSelectedItemCol)
-                  foundedMove=move;
-              }
-          });
-            if (foundedMove!==null)
-            {
-              // делаем ход
-              let newState=doMove(state, foundedMove);
-              //
-              return {
-                ...newState,
-                hasArrowSelectedItem: true,
-                // это выставляется в doMove - если ходил игрок и дальше должен рубить этой же шашкой, то выделение остается
-                //hasSelectedItem: false
-              };
-
-            }
-
-          }
-        }
-
+        return processCellPress(state, state.arrowSelectedItemRow, state.arrowSelectedItemCol)
       }
       return {
         ...state,
