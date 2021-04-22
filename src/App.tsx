@@ -251,9 +251,13 @@ function _renderTiles()
             top: appState.backwardDirection?dictionary[7-row]:dictionary[row],
             left: appState.backwardDirection?dictionary[7-column]:dictionary[column],
             color: "#FF3333"
-          };          
+          };
+
+          let _label_coords=(appState.backwardDirection?(label_coords_backwards[7-row][7-column]):label_coords[row][column]).toString();
+          if (appState.gameBoard[row][column]>0)
+            _label_coords="";
       
-          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{(appState.backwardDirection?(label_coords_backwards[7-row][7-column]):label_coords[row][column]).toString()}</div>);
+          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{_label_coords}</div>);
           countTiles++;
 
         }
@@ -265,8 +269,12 @@ function _renderTiles()
             left: appState.backwardDirection?dictionary[7-column]:dictionary[column],
             color: "#FF3333"
           };          
+
+          let _label_coords=(appState.backwardDirection?(label_coords_backwards[7-row][7-column]):label_coords[row][column]).toString();
+          if (appState.gameBoard[row][column]>0)
+            _label_coords="";
       
-          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{(appState.backwardDirection?(label_coords_backwards[7-row][7-column]):label_coords[row][column]).toString()}</div>);
+          values.push(<div key={countTiles.toString()} className="tile" id={"tile"+countTiles.toString()} style={divStyle} onClick={(e)=>handleTileClick(row, column, e)}>{_label_coords}</div>);
           countTiles++;
 
         }
@@ -322,8 +330,10 @@ function _renderPieces(playerId: number)
         };
 
         let myClassName=appState.hasSelectedItem&&appState.selectedItemRow===row&&appState.selectedItemCol===column?"piece selected":"piece";
+
+        let _label_coords=(appState.backwardDirection?(label_coords_backwards[7-row][7-column]):label_coords[row][column]).toString();
       
-        values.push(<div key={Math.floor(checker/10).toString()} className={myClassName} id={"piece"+Math.floor(checker/10).toString()} style={divStyle} onClick={(e)=>handlePieceClick(row,column,e)}></div>);
+        values.push(<div key={Math.floor(checker/10).toString()} className={myClassName} id={"piece"+Math.floor(checker/10).toString()} style={divStyle} onClick={(e)=>handlePieceClick(row,column,e)}>{_label_coords}</div>);
         // чтобы порядок не менялся при перемещении шашек в другие точки
         // (иначе не будет плавной анимации, в случае, когда меняется порядок (даже при неизменных id))
         keys.push({checker:checker, idx: countPieces});

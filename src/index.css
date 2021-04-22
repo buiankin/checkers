@@ -167,6 +167,10 @@ div#board {
   }
 
     div#board .player1pieces .piece {
+    /*текст внутри шашки*/
+    text-align: center;
+    vertical-align: center;
+    /**/
     position: absolute;
     width: 8vmin;
     height: 8vmin;
@@ -186,6 +190,10 @@ div#board {
       box-shadow: 0 0 10px 5px #16A8C7; }
 
     div#board .player2pieces .piece {
+    /*текст внутри шашки*/
+    text-align: center;
+    vertical-align: center;
+    /**/
     position: absolute;
     width: 8vmin;
     height: 8vmin;
