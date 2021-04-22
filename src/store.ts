@@ -22,6 +22,8 @@ export const initialState = {
   backwardDirection: false,
   players: [{isRobot: false}, {isRobot: true}],
   playerTurn: 1,
+  gameOver: false,
+  playerWin: 0,
 
 
   // с клавиатуры выбирали поле
@@ -63,57 +65,9 @@ export const initialState = {
   ],
   */
 
-
-  /*
-  gameBoard : [
-    [0, 0, 0, 0, 0, 0, 0, 11],
-    [21, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [12, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 22, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 33],
-    [0, 0, 0, 0, 0, 0, 0, 0]
-  ],
-  gameBoard : [
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 12, 0, 0, 0, 0, 0, 11],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 23, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0]
-  ],
-  */
-  /*
-  gameBoard : [
-    [0, 11, 0, 21, 0, 0, 0, 41],
-    [51, 0, 61, 0, 71, 0, 81, 0],
-    [0, 91, 0, 0, 0, 111, 0, 0],
-    [202, 0, 0, 0, 501, 0, 0, 0],
-    [0, 0, 0, 0, 0, 401, 0, 402],
-    [134, 0, 0, 0, 0, 0, 0, 0],
-    [0, 172, 0, 182, 0, 0, 0, 0],
-    [212, 0, 222, 0, 232, 0, 242, 0]
-  ],
-
-  gameBoard : [
-    [0, 0, 0, 0, 0, 24, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 12, 0, 0, 0, 11, 0, 21],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [32, 0, 42, 0, 0, 0, 52, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 62, 0, 0, 0, 0, 0]
-  ],
-  */
-
-
   //arrays to store the instances
-  pieces : [],
-  tiles : []
+  //pieces : [],
+  //tiles : []
 
 };
 
@@ -144,6 +98,9 @@ type State = {
   backwardDirection: boolean,
   players: {isRobot: boolean}[],
   playerTurn: number,
+  gameOver: boolean,
+  playerWin: number,
+
 
   hasArrowSelectedItem: boolean,
   arrowSelectedItemRow: number, arrowSelectedItemCol: number,
@@ -156,8 +113,8 @@ type State = {
   continiousCaptured: {y: number, x: number}[],
 
   gameBoard: number[][],
-  pieces : string[],
-  tiles : string[]
+  //pieces : string[],
+  //tiles : string[]
 
 };
 
@@ -309,6 +266,8 @@ function doMove(state: State, move: Move)
   }
   newBoard[move.endRow][move.endCol] = checker;
  // Ход переходит
+  return endTurnChangePlayer({...state, gameBoard: newBoard, isContiniousMoving: 0, hasSelectedItem: false});
+  /*
   return {
     ...state,
     gameBoard: newBoard,
@@ -316,6 +275,36 @@ function doMove(state: State, move: Move)
     playerTurn: state.playerTurn===1?2:1,
     hasSelectedItem: false
   };
+  */
+}
+
+// вызывается, когда надо передать ход другому игроку. проверяет, что игра закончилась
+function endTurnChangePlayer(state: State)
+{
+  // на всякий случай проверка, что игра уже закончилась
+  if (state.gameOver)
+    return state;
+  let checkers = Game.EmptyGameStatic();
+  // Важно, чтобы -1 заполнились там, где нельзя ничего ставить
+  checkers.newGame();
+  // Текущее состояние
+  checkers.setCurrentState(state.gameBoard, 3-state.playerTurn, 3);
+  checkers.russianRules=state.russianRules;
+
+  let legalMoves = checkers.getLegalMoves(checkers.board);
+  if (legalMoves.length===0) {
+    return {
+      ...state,
+      gameOver: true,
+      playerWin: state.playerTurn
+    };
+  }
+  return {
+    ...state,
+    playerTurn: 3-state.playerTurn
+  };
+
+
 }
 
 function processCellPress(state: State, row: number, col: number): State
@@ -397,10 +386,97 @@ function processCellPress(state: State, row: number, col: number): State
     }
   }
 
-  // что-то надо все равно вернуть
+  // эту клетку нельзя выбирать, а если до этого что-то было выбрано, сбрасываем
+  return {...state, hasSelectedItem: false};
+
+}
+
+
+// Голосом назвали откуда и куда ходить
+function processFullMove(state: State, row: number, col: number, row_dest: number, col_dest: number): State
+{
+  let checker=state.gameBoard[row][col];
+  let checker_dest=state.gameBoard[row_dest][col_dest];
+  // поле, где есть шашка
+
+  // Откуда ходим - это шашка игрока, а куда - пусто
+  if (checker>0&&(checker%10===state.playerTurn||checker%10===state.playerTurn+2)&&checker_dest===0)
+  {
+    // пустое поле, если сюда выделенная шашка ходит, то делаем ход
+    let legalMoves=getLegalMoves(state);
+    let foundedMove=null;
+    legalMoves.forEach(move => {
+      if (move.listCaptureCol.length>0)
+      {
+        // если есть срубленные, надо смотреть координаты initial 
+        if (move.initialRow===row&&move.initialCol===col&&move.listVisitedRow[0]===row_dest&&move.listVisitedCol[0]===col_dest)
+          foundedMove=move;
+      } else {
+        if (move.startRow===row&&move.startCol===col&&move.endRow===row_dest&&move.endCol===col_dest)
+          foundedMove=move;
+      }
+    });
+    if (foundedMove!==null)
+    {
+      // делаем ход
+      let newState=doMove(state, foundedMove);
+      //
+      return {
+        ...newState,
+        //hasArrowSelectedItem: true,
+        // это выставляется в doMove - если ходил игрок и дальше должен рубить этой же шашкой, то выделение остается
+        //hasSelectedItem: false
+      };
+    }
+  }
+
+  // если ход неправильный, ничего не меняем
   return state;
 
 }
+
+
+function coordToRowCol (index: number, backwardDirection: boolean): {row: number, col:number}|undefined
+{
+  if (index>=1&&index<=32)
+  {
+    let row=Math.floor((index-1)/4);
+    let col=(index-1-row*4)*2+(row+1)%2;
+    if (backwardDirection)
+    {
+      switch (col)
+      {
+        case 0:
+          col=6;
+          break;
+        case 1:
+          col=7;
+          break;
+        case 2:
+          col=4;
+          break;
+        case 3:
+          col=5;
+          break;
+        case 4:
+          col=2;
+          break;
+        case 5:
+          col=3;
+          break;
+        case 6:
+          col=0;
+          break;
+        case 7:
+          col=1;
+          break;
+      }
+    }
+    return {row: row, col:col};
+  }
+  return undefined;
+}
+
 
 export const reducer = (state: State, action: Action) => {
 
@@ -413,13 +489,44 @@ export const reducer = (state: State, action: Action) => {
       }
 
     case "change_direction":
-      console.log("change_direction");
+      console.log("change_direction, userId={action.data?.userId}");
+      if (action.data) 
+      {
+        if (action.data.direction&&action.data.direction===1)
+        {
+          return {
+            ...state,
+            backwardDirection: false
+          }
+        }
+        if (action.data.direction&&action.data.direction===2)
+        {
+          return {
+            ...state,
+            backwardDirection: true
+          }
+        }
+      }
       return {
-        ...state
+        ...state,
+        backwardDirection: !state.backwardDirection
       }
 
     case "fire123":
-      console.log("fire123");
+      //console.log("fire123");
+      if (action.data.n0)
+      {
+        let cellCoord=coordToRowCol(action.data.n0, state.backwardDirection);
+        if (cellCoord)
+          return processCellPress(state, cellCoord.row, cellCoord.col);
+      } else if (action.data.n1&&action.data.n2)
+      {
+        let cellCoord1=coordToRowCol(action.data.n1, state.backwardDirection);
+        let cellCoord2=coordToRowCol(action.data.n2, state.backwardDirection);
+        if (cellCoord1&&cellCoord2)
+          return processFullMove(state, cellCoord1.row, cellCoord1.col, cellCoord2.row, cellCoord2.col);
+      }
+  
       return {
         ...state
       }
@@ -535,7 +642,6 @@ export const reducer = (state: State, action: Action) => {
     }
   
 
-
     case "move_robot": // первый ход робота (хотя можно запускать и чтобы робот сделал ход за человека его шашками)
     {
       let checkers = Game.EmptyGameStatic();
@@ -546,43 +652,30 @@ export const reducer = (state: State, action: Action) => {
       checkers.setCurrentState(state.gameBoard, state.playerTurn, 3);
       checkers.russianRules=state.russianRules;
 
+      // На самом деле эта проверка на всякий случай, т.к. проверка происходит сразу после хода предыдущего игрока
       let legalMoves = checkers.getLegalMoves(checkers.board);
       if (legalMoves.length===0) {
         console.log("I am lost!");
-          //gameOver = true;
-          //console.log("Player 2 Wins!");
-          //continue;
+        return {
+          ...state,
+          gameOver: true,
+          playerWin: 3-state.playerTurn
+        };
+
       } else {
-      //console.log("Player 1's Turn: ");
-      //checkers.printListMoves(legalMoves);
-      //if (player1IsComputer){
           let move = computerPlayer.alphaBetaSearch(checkers);
           if (move)
           {
             checkers.applyMove(move, checkers.board);
-            console.log("Player Chose: ");
-            checkers.printMove(move);
+            //console.log("Player Chose: ");
+            //checkers.printMove(move);
 
             let newState=doMove(state, move);
-
-             return {
-               ...newState
-               //playerTurn: state.playerTurn===1?2:1
-             };
-       
-
+            return newState;
           }
       }
-      //}
-      //checkers.printNote();
-      //checkers.printBoard();
-
-    
-
-      return {
-        ...state,
-        playerTurn: state.playerTurn===1?2:1
-      };
+      // Сюда не придет, т.к. если ход есть, то он будет найден
+      return state;
     }
 
     case "continue_move_by_robot":
@@ -625,15 +718,16 @@ export const reducer = (state: State, action: Action) => {
       }
     
       // Обычный ход, либо последний срубленный
-    
-    
       // Ход переходит
+      return endTurnChangePlayer({...state, gameBoard: newBoard, isContiniousMoving: 0});
+      /*
       return {
         ...state,
         gameBoard: newBoard,
         isContiniousMoving: 0,
         playerTurn: state.playerTurn===1?2:1
       };
+      */
     }
 
     default:

@@ -110,25 +110,6 @@ export const App: FC = memo(() => {
       {
         //alert("left="+insets.left+", top="+insets.top+", right="+insets.right+", bottom="+insets.bottom);
       }
-      if (navigation) {
-        switch(navigation.command) {
-            case 'UP':
-              dispatch({type: 'arrow_up'});
-              break;
-            case 'DOWN':
-              dispatch({type: 'arrow_down'});
-              break;
-            case 'LEFT':
-              dispatch({type: 'arrow_left'});
-              break;
-            case 'RIGHT':
-              dispatch({type: 'arrow_right'});
-              break;
-            case 'FORWARD':
-              dispatch({type: 'arrow_ok'});
-              break;
-        }
-    }      
       if (type==='close_app')
       {
         assistantRef?.current?.close();
@@ -317,16 +298,16 @@ function _renderPieces(playerId: number)
         // this.element.css("backgroundImage", "url('img/king" + this.player + ".png')");
 
         const divStyle = checkersType===3?{
-          top: dictionary[row],
-          left: dictionary[column],
+          top: appState.backwardDirection?dictionary[7-row]:dictionary[row],
+          left: appState.backwardDirection?dictionary[7-column]:dictionary[column],
           backgroundImage: "url(" + king1 + ")"
         }:checkersType===4?{
-          top: dictionary[row],
-          left: dictionary[column],
+          top: appState.backwardDirection?dictionary[7-row]:dictionary[row],
+          left: appState.backwardDirection?dictionary[7-column]:dictionary[column],
           backgroundImage: "url(" + king2 + ")"
         }: {
-          top: dictionary[row],
-          left: dictionary[column]
+          top: appState.backwardDirection?dictionary[7-row]:dictionary[row],
+          left: appState.backwardDirection?dictionary[7-column]:dictionary[column]
         };
 
         let myClassName=appState.hasSelectedItem&&appState.selectedItemRow===row&&appState.selectedItemCol===column?"piece selected":"piece";
@@ -354,7 +335,8 @@ function _renderPieces(playerId: number)
 
 function handleClearGameClick(e: any) {
   e.preventDefault();
-  dispatch({type: 'move_robot'});
+  //dispatch({type: 'move_robot'});
+  dispatch({type: 'change_direction', data: null});
 }
 
 function handleKeyDown(e:any)
@@ -400,10 +382,10 @@ function _renderPult()
       <h2>Game Statistics</h2>
       <div className="wrapper">
       <div id="player1">
-        <h3>Player 1 (Top)</h3>
+        <h3>Player 1 ({appState.backwardDirection?'Bottom':'Top'})</h3>
       </div>
       <div id="player2">
-        <h3>Player 2 (Bottom)</h3>
+        <h3>Player 2 {appState.backwardDirection?'Top':'Bottom'}</h3>
       </div>
       </div>
       <div className="clearfix"></div>
