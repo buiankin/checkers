@@ -1,3 +1,4 @@
+// based on https://github.com/justinjose7/checkers-ai
 
 import Move from "./move";
 
@@ -566,6 +567,7 @@ class Game {
         this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
         //System.out.println("Current Player: " + currentPlayer);
     }
+    /*
     // print moves and in the case of jumps show intermediate jumps
     printListMoves(movesList: Move[]) {
         if (movesList[0].listCaptureRow.length===0) {
@@ -598,7 +600,6 @@ class Game {
         }
         console.debug("");
     }
-    /*
     // print help note which shows what symbols represent the pieces of each player
     void printNote() {
         System.out.println("Player 1 is" + ANSI_RED + "  -  " + ANSI_RESET + "(normal piece) and" + ANSI_RED + "  *  " + ANSI_RESET + "(king)");

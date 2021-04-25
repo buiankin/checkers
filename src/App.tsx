@@ -1,8 +1,10 @@
+// based on https://github.com/codethejason/checkers
+
 import logo from './logo.svg';
 import './App.css';
 
-import Game from './ai/game';
-import Computer from './ai/computer';
+//import Game from './ai/game';
+//import Computer from './ai/computer';
 import Move from './ai/move';
 
 import king1 from './img/king1.png';
@@ -22,7 +24,7 @@ import React, {
 import {
   createSmartappDebugger,
   createAssistant,
-  createRecordPlayer,
+//  createRecordPlayer,
   AssistantAppState,
   AssistantSmartAppData,
   AssistantCharacterType
@@ -30,7 +32,7 @@ import {
 
 import { initialState, reducer } from "./store";
 import { background } from '@sberdevices/plasma-tokens';
-import { Row } from '@sberdevices/ui';
+//import { Row } from '@sberdevices/ui';
 
 const dictionary = ["0vmin", "10vmin", "20vmin", "30vmin", "40vmin", "50vmin", "60vmin", "70vmin", "80vmin", "90vmin"];
 const label_coords =
@@ -79,7 +81,7 @@ export const App: FC = memo(() => {
 
   // TODO assistant.Close
 
-
+/*
   useEffect(() => {
 
     //dispatch({type: 'init'});
@@ -116,9 +118,8 @@ export const App: FC = memo(() => {
       }
     });
 
-
-
   }, []);
+  */
   
 
   function downHandler(e: KeyboardEvent ) {
@@ -196,8 +197,8 @@ export const App: FC = memo(() => {
   }, [appState.isContiniousMoving, appState.playerTurn, appState.players]);
 
 
+  /*
   function changePlayerTurn() {
-    /*
     if (this.playerTurn == 1) {
       this.playerTurn = 2;
       $('.turn').css("background", "linear-gradient(to right, transparent 50%, #BEEE62 50%)");
@@ -207,8 +208,8 @@ export const App: FC = memo(() => {
     }
     this.check_if_jump_exist()
     return;
-    */
   }
+ */
 
   function handleTileClick(row: any, column: any, e:any) {
     e.preventDefault();
@@ -333,6 +334,14 @@ function _renderPieces(playerId: number)
   return values_sorted;
 }
 
+function _renderCapturedPieces(playerId: number)
+{
+  let res=[];
+  for (let i=0; i<appState.capturedPieces[playerId-1]; i++)
+    res.push(<div className="capturedPiece"></div>);
+  return res;
+}
+
 function handleClearGameClick(e: any) {
   e.preventDefault();
   //dispatch({type: 'move_robot'});
@@ -369,7 +378,6 @@ function _renderPult()
 
 }
 
-
   return (
     <div className="App">
     <div className="column">
@@ -379,18 +387,20 @@ function _renderPult()
       <p>Made by codethejason for <a href="http://fossasia.org">FOSSASIA</a> 2015.</p>
     </div>
     <div className="stats">
-      <h2>Game Statistics</h2>
+      <h2>Статистика Игры</h2>
       <div className="wrapper">
       <div id="player1">
-        <h3>Player 1 ({appState.backwardDirection?'Bottom':'Top'})</h3>
+        <h3>Игрок 1 ({appState.backwardDirection?'Внизу':'Сверху'})</h3>
+        {_renderCapturedPieces(1)}
       </div>
       <div id="player2">
-        <h3>Player 2 {appState.backwardDirection?'Top':'Bottom'}</h3>
+        <h3>Player 2 ({appState.backwardDirection?'Вверху':'Внизу'})</h3>
+        {_renderCapturedPieces(2)}
       </div>
       </div>
       <div className="clearfix"></div>
       <div className="turn" style={appState.playerTurn===1?{background: "linear-gradient(to right, #BEEE62 50%, transparent 50%)"}:{background: "linear-gradient(to right, transparent 50%, #BEEE62 50%)"}}></div>
-      <span id="winner"></span>
+      <span id="winner">{appState.gameOver?"Игрок "+appState.playerWin+" победил!":""}</span>
       <button id="cleargame" onClick={handleClearGameClick}>Reset Game</button>
     </div>
   </div>

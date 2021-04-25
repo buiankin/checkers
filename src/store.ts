@@ -2,7 +2,7 @@
 import Game from './ai/game';
 import Computer from './ai/computer';
 import Move from './ai/move';
-import { debug } from 'node:console';
+//import { debug } from 'node:console';
 
 
 export const initialState = { 
@@ -24,6 +24,7 @@ export const initialState = {
   playerTurn: 1,
   gameOver: false,
   playerWin: 0,
+  capturedPieces: [0, 0],
 
 
   // с клавиатуры выбирали поле
@@ -100,6 +101,7 @@ type State = {
   playerTurn: number,
   gameOver: boolean,
   playerWin: number,
+  capturedPieces: Array<number>,
 
 
   hasArrowSelectedItem: boolean,
@@ -230,6 +232,7 @@ function doMove(state: State, move: Move)
     }
 
     // Игрок может ходить дальше только этой шашкой и только продолжать рубить
+    // -1 потому, что в массиве нумерация с 0, а в игре с 1
     if (state.players[state.playerTurn-1])
     {
       return {
@@ -240,7 +243,8 @@ function doMove(state: State, move: Move)
         continiousCaptured: continiousCaptured,
         // сразу выделим эту шашку
         hasSelectedItem: true,
-        selectedItemRow: move.listVisitedRow[0], selectedItemCol:move.listVisitedCol[0]
+        selectedItemRow: move.listVisitedRow[0], selectedItemCol:move.listVisitedCol[0],
+        capturedPieces: [state.capturedPieces[0]+(state.playerTurn===1?1:0), state.capturedPieces[1]+(state.playerTurn===1?0:1)]
       };
   
     }
@@ -253,7 +257,8 @@ function doMove(state: State, move: Move)
       continiousMoving: continiousMoving,
       continiousCaptured: continiousCaptured,
       // не важно, что это робот, но после хода сбрасываем выделенную шашку
-      hasSelectedItem: false
+      hasSelectedItem: false,
+      capturedPieces: [state.capturedPieces[0]+(state.playerTurn===1?1:0), state.capturedPieces[1]+(state.playerTurn===1?0:1)]
     };
   }
 
@@ -265,7 +270,13 @@ function doMove(state: State, move: Move)
     checker+=2;
   }
   newBoard[move.endRow][move.endCol] = checker;
- // Ход переходит
+  // Ход переходит
+  // если срубили, увеличим счетчик
+  if (move.listCaptureCol.length>0)
+  {
+    return endTurnChangePlayer({...state, gameBoard: newBoard, isContiniousMoving: 0, hasSelectedItem: false, capturedPieces: [state.capturedPieces[0]+(state.playerTurn===1?1:0), state.capturedPieces[1]+(state.playerTurn===1?0:1)]});
+  }
+  // не рубили
   return endTurnChangePlayer({...state, gameBoard: newBoard, isContiniousMoving: 0, hasSelectedItem: false});
   /*
   return {
@@ -309,12 +320,15 @@ function endTurnChangePlayer(state: State)
 
 function processCellPress(state: State, row: number, col: number): State
 {
-
+  // если игра закончилась или сейчас ход компьютера, выход без изменений
+  if (state.gameOver||state.players[state.playerTurn-1].isRobot)
+    return state;
+  //
   let checker=state.gameBoard[row][col];
   // поле, где есть шашка
   if (checker>0)
   {
-    // если это шашка игрока
+    // если это шашка игрока, чей ход
     if (checker%10===state.playerTurn||checker%10===state.playerTurn+2)
     {
       let legalMoves=getLegalMoves(state);
@@ -713,13 +727,14 @@ export const reducer = (state: State, action: Action) => {
         return {
           ...state,
           gameBoard: newBoard,
-          isContiniousMoving: state.isContiniousMoving+1
+          isContiniousMoving: state.isContiniousMoving+1,
+          capturedPieces: [state.capturedPieces[0]+(state.playerTurn===1?1:0), state.capturedPieces[1]+(state.playerTurn===1?0:1)]
         };
       }
     
       // Обычный ход, либо последний срубленный
       // Ход переходит
-      return endTurnChangePlayer({...state, gameBoard: newBoard, isContiniousMoving: 0});
+      return endTurnChangePlayer({...state, gameBoard: newBoard, isContiniousMoving: 0, capturedPieces: [state.capturedPieces[0]+(state.playerTurn===1?1:0), state.capturedPieces[1]+(state.playerTurn===1?0:1)]});
       /*
       return {
         ...state,

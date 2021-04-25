@@ -19,11 +19,6 @@ class Move{
     public capturedSquares = new Set();
     public state: number[][]=[];
 
-    constructor()
-    {
-
-    }
-
     static fill_1(startRow: number, startCol: number, endRow: number, endCol: number, state: number[][]) {
         let newMove=new Move();
         newMove.startRow = startRow;

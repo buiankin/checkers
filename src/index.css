@@ -48,19 +48,34 @@ html, body {
   html .clearfix, body .clearfix {
     clear: both; }
 
+div#root, div.App {
+  position: absolute;
+  min-height: 100%;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 div.column {
-  /*position: relative;*/
+  position: relative;
   float: left;
   overflow: auto;
   height: 100%;
   min-height: 100%;
-  width: 50%; }
+  width: 50%;
+}
+
+
 
 @media screen and (max-width: 1000px) {
   div.column {
     width: 100% !important;
     overflow: hidden;
     height: auto; } }
+
 div.info, div.stats {
   width: 70%;
   margin: 13vmin auto 0;
