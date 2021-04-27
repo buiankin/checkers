@@ -2,6 +2,7 @@
 
 import logo from './logo.svg';
 import './App.css';
+//import styled, { css } from 'styled-components';
 
 //import Game from './ai/game';
 //import Computer from './ai/computer';
@@ -31,8 +32,24 @@ import {
 } from "@sberdevices/assistant-client";
 
 import { initialState, reducer } from "./store";
-import { background } from '@sberdevices/plasma-tokens';
 //import { Row } from '@sberdevices/ui';
+
+// createGlobalStyle нужен для создания глобальных стилей
+import styled, { createGlobalStyle, css } from 'styled-components';
+
+// получаем значение для целевой платформы
+import { sberBox } from '@sberdevices/plasma-tokens/typo';
+// получаем стилевые объекты для нашего интерфейса
+import { body1, headline2 } from '@sberdevices/plasma-tokens';
+
+// получаем тему персонажа
+import { darkEva, darkSber, darkJoy } from '@sberdevices/plasma-tokens/themes';
+
+// получаем цвета для нашего интерфейса
+import { text, background, gradient } from '@sberdevices/plasma-tokens';
+
+import { applyView, ViewProps, View } from '@sberdevices/plasma-core/mixins';
+
 
 const dictionary = ["0vmin", "10vmin", "20vmin", "30vmin", "40vmin", "50vmin", "60vmin", "70vmin", "80vmin", "90vmin"];
 const label_coords =
@@ -56,6 +73,44 @@ const label_coords_backwards =
    [0,5,0,6,0,7,0,8],
    [1,0,2,0,3,0,4,0]
   ];
+
+  interface AppStyledProps extends ViewProps {
+    bottomX: number;
+}
+
+
+  // TODO bottom: appState.assistantBottomString
+  const AppStyled = styled.div`
+    position: 'absolute';
+    width: '100%';
+    top: 0;
+    left: 0;
+    margin:0;
+    padding: 30;
+    bottom: ${(p: AppStyledProps) => p.bottomX};
+    ${body1}
+`;
+
+// создаем react-компонент c глобальными стилями типографики
+const TypoScale = createGlobalStyle(sberBox);
+
+// создаем react-компонент для подложки
+const DocStyles = createGlobalStyle`
+    /* stylelint-disable-next-line selector-nested-pattern */
+    html {
+        color: ${text};
+        background-color: ${background};
+        background-image: ${gradient};
+
+        /** необходимо залить градиентом всю подложку */
+        min-height: 100vh;
+    }
+`;
+
+const ThemeBackgroundEva = createGlobalStyle(darkEva);
+const ThemeBackgroundSber = createGlobalStyle(darkSber);
+const ThemeBackgroundJoy = createGlobalStyle(darkJoy);
+
 
 const initializeAssistant = (getState: any) => {
     console.log('process.env.NODE_ENV=');
@@ -81,7 +136,6 @@ export const App: FC = memo(() => {
 
   // TODO assistant.Close
 
-/*
   useEffect(() => {
 
     //dispatch({type: 'init'});
@@ -111,6 +165,8 @@ export const App: FC = memo(() => {
       if (insets)
       {
         //alert("left="+insets.left+", top="+insets.top+", right="+insets.right+", bottom="+insets.bottom);
+        
+        dispatch({type: 'assistantBottomString', bottomString: insets.bottom.toString()+"px"});
       }
       if (type==='close_app')
       {
@@ -119,7 +175,6 @@ export const App: FC = memo(() => {
     });
 
   }, []);
-  */
   
 
   function downHandler(e: KeyboardEvent ) {
@@ -378,23 +433,35 @@ function _renderPult()
 
 }
 
+  //<div className="App" style={{position: 'absolute', width: "100%", top: 0, left: 0, margin:0, padding: 0, bottom: appState.assistantBottomString}}>
   return (
-    <div className="App">
+    <AppStyled>
+    {/* Используем глобальные react-компоненты один раз */}
+    <TypoScale />
+    <DocStyles />
+    {(() => {
+                switch (appState.character) {
+                    case 'sber':
+                        return <ThemeBackgroundSber />;
+                    case 'eva':
+                        return <ThemeBackgroundEva />;
+                    case 'joy':
+                        return <ThemeBackgroundJoy />;
+                    default:
+                        return;
+                }
+            })()}    
+    {/*<Theme />*/}
     <div className="column">
-    <div className="info">
-      <h1>Checkers</h1>
-      <hr/>
-      <p>Made by codethejason for <a href="http://fossasia.org">FOSSASIA</a> 2015.</p>
-    </div>
     <div className="stats">
-      <h2>Статистика Игры</h2>
+      <h2>Английские шашки</h2>
       <div className="wrapper">
       <div id="player1">
         <h3>Игрок 1 ({appState.backwardDirection?'Внизу':'Сверху'})</h3>
         {_renderCapturedPieces(1)}
       </div>
       <div id="player2">
-        <h3>Player 2 ({appState.backwardDirection?'Вверху':'Внизу'})</h3>
+        <h3>Игрок 2 ({appState.backwardDirection?'Вверху':'Внизу'})</h3>
         {_renderCapturedPieces(2)}
       </div>
       </div>
@@ -423,7 +490,7 @@ function _renderPult()
       </div>
     </div>
     </div>
-    </div>
+    </AppStyled>
   );
 
 

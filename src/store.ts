@@ -9,6 +9,7 @@ export const initialState = {
   actionsToSend: [],
   character: 'sber',
   respectfulAppeal: true,
+  assistantBottomString: "0px",
 
   //The initial setup
 
@@ -94,6 +95,7 @@ type State = {
 
   character: string,
   respectfulAppeal: boolean,
+  assistantBottomString: string,
 
   russianRules: boolean,
   backwardDirection: boolean,
@@ -127,6 +129,10 @@ type Action =
   | {
     type: "character";
     character_id: string;
+  }
+  | {
+    type: "assistantBottomString";
+    bottomString: string;
   }
   | {
     type: "change_direction";
@@ -501,6 +507,12 @@ export const reducer = (state: State, action: Action) => {
         ...state,
         character: action.character_id, respectfulAppeal: action.character_id!=='joy'
       }
+      
+    case "assistantBottomString":
+      return {
+        ...state,
+        assistantBottomString: action.bottomString
+      }
 
     case "change_direction":
       console.log("change_direction, userId={action.data?.userId}");
@@ -669,7 +681,7 @@ export const reducer = (state: State, action: Action) => {
       // На самом деле эта проверка на всякий случай, т.к. проверка происходит сразу после хода предыдущего игрока
       let legalMoves = checkers.getLegalMoves(checkers.board);
       if (legalMoves.length===0) {
-        console.log("I am lost!");
+        //console.log("I am lost!");
         return {
           ...state,
           gameOver: true,
