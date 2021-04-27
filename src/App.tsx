@@ -51,7 +51,8 @@ import { text, background, gradient } from '@sberdevices/plasma-tokens';
 import { applyView, ViewProps, View } from '@sberdevices/plasma-core/mixins';
 
 
-const dictionary = ["0vmin", "10vmin", "20vmin", "30vmin", "40vmin", "50vmin", "60vmin", "70vmin", "80vmin", "90vmin"];
+//const dictionary = ["0vmin", "10vmin", "20vmin", "30vmin", "40vmin", "50vmin", "60vmin", "70vmin", "80vmin", "90vmin"];
+const dictionary = ["0%", "12.5%", "25%", "37.5%", "50%", "62.5%", "75%", "87.5%", "100%", "100%"];
 const label_coords =
   [[0,1,0,2,0,3,0,4],
    [5,0,6,0,7,0,8,0],
@@ -74,22 +75,6 @@ const label_coords_backwards =
    [1,0,2,0,3,0,4,0]
   ];
 
-  interface AppStyledProps extends ViewProps {
-    bottomX: number;
-}
-
-
-  // TODO bottom: appState.assistantBottomString
-  const AppStyled = styled.div`
-    position: 'absolute';
-    width: '100%';
-    top: 0;
-    left: 0;
-    margin:0;
-    padding: 30;
-    bottom: ${(p: AppStyledProps) => p.bottomX};
-    ${body1}
-`;
 
 // создаем react-компонент c глобальными стилями типографики
 const TypoScale = createGlobalStyle(sberBox);
@@ -433,12 +418,47 @@ function _renderPult()
 
 }
 
+  // Вариант со старой разметкой
+  /*
+  const AppStyled = styled.div`
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    margin:0;
+    padding: 30;
+    bottom: ${appState.assistantBottomString};
+    ${body1}
+`;
+*/
+const AppStyled = styled.div`
+  width: 100%;
+  height: calc(100vmin - ${appState.assistantBottomString});
+  padding: 0;
+  box-sizing: border-box;
+  background-color: yellow;
+  text-align: center;
+
+  display: flex;
+  flex-direction: row;
+
+  overflow:auto;
+
+${body1}
+`;
+
+
+
+
+
   //<div className="App" style={{position: 'absolute', width: "100%", top: 0, left: 0, margin:0, padding: 0, bottom: appState.assistantBottomString}}>
+  //<AppStyled className="App">
+
   return (
-    <AppStyled>
-    {/* Используем глобальные react-компоненты один раз */}
+    <AppStyled className="App">
+    {/* Используем глобальные react-компоненты один раз 
     <TypoScale />
-    <DocStyles />
+    <DocStyles />*/}
     {(() => {
                 switch (appState.character) {
                     case 'sber':
@@ -452,7 +472,7 @@ function _renderPult()
                 }
             })()}    
     {/*<Theme />*/}
-    <div className="column">
+    <div className="column1">
     <div className="stats">
       <h2>Английские шашки</h2>
       <div className="wrapper">
@@ -472,7 +492,7 @@ function _renderPult()
     </div>
   </div>
 
-    <div className="column">
+    <div className="column2">
     <div id="board" onKeyDown={(e)=>handleKeyDown(e)}>
       <div className="tiles">
       {_renderTiles()}
