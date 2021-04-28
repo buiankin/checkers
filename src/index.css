@@ -83,8 +83,21 @@ div.column {
 }
 */
 
+.columnspan {
+  /*background-color: brown;*/
+  height: calc(100vmin - 144px);
+  flex: 1 1;
+  /*
+  width: calc(100vmax-100vmin);
+  min-width: calc(100vmax-100vmin);
+  height: 100vmin;
+  margin: 0 auto;
+  */
+}
+
+
 .column1 {
-  background-color: green;
+  /*background-color: green;*/
   height: calc(100vmin - 144px);
   flex: 1 1;
   /*
@@ -96,7 +109,7 @@ div.column {
 }
 
 .column2 {
-  background-color: #AAAAAA;
+  /*background-color: #AAAAAA;*/
   height: calc(100vmin - 144px);
   /*
   height: 100vmin;
