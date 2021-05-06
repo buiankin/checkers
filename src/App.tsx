@@ -10,6 +10,8 @@ import Move from './ai/move';
 
 import king1 from './img/king1.png';
 import king2 from './img/king2.png';
+import img0 from "./img/320_320_0.jpg";
+import img1 from "./img/320_320_1.jpg";
 
 import React, {
   FC,
@@ -38,7 +40,8 @@ import { initialState, reducer } from "./store";
 import styled, { createGlobalStyle, css } from 'styled-components';
 
 // получаем значение для целевой платформы
-import { sberBox } from '@sberdevices/plasma-tokens/typo';
+import { sberBox, sberPortal, mobile } from '@sberdevices/plasma-tokens/typo';
+import { detectDevice } from '@sberdevices/ui/utils';
 // получаем стилевые объекты для нашего интерфейса
 import { body1, headline2 } from '@sberdevices/plasma-tokens';
 
@@ -49,6 +52,19 @@ import { darkEva, darkSber, darkJoy } from '@sberdevices/plasma-tokens/themes';
 import { text, background, gradient } from '@sberdevices/plasma-tokens';
 
 import { applyView, ViewProps, View } from '@sberdevices/plasma-core/mixins';
+
+import {
+  Card,
+  CardBody,
+  CardContent,
+  CardMedia,
+  CardHeadline1,
+  TextBox,
+  TextBoxBigTitle,
+  TextBoxBiggerTitle,
+  TextBoxSubTitle,
+  Button
+} from '@sberdevices/plasma-ui';
 
 
 //const dictionary = ["0vmin", "10vmin", "20vmin", "30vmin", "40vmin", "50vmin", "60vmin", "70vmin", "80vmin", "90vmin"];
@@ -77,8 +93,12 @@ const label_coords_backwards =
 
 
 // создаем react-компонент c глобальными стилями типографики
-const TypoScale = createGlobalStyle(sberBox);
+const TypoScaleSberBox = createGlobalStyle(sberBox);
+const TypoScaleSberPortal = createGlobalStyle(sberPortal);
+const TypoScaleTouch = createGlobalStyle(mobile);
 
+
+// можно добавить свою переменную, например --my_view_type: 1;
 // создаем react-компонент для подложки
 const DocStyles = createGlobalStyle`
     /* stylelint-disable-next-line selector-nested-pattern */
@@ -150,7 +170,6 @@ export const App: FC = memo(() => {
       if (insets)
       {
         //alert("left="+insets.left+", top="+insets.top+", right="+insets.right+", bottom="+insets.bottom);
-        
         dispatch({type: 'assistantBottomString', bottomString: insets.bottom.toString()+"px"});
       }
       if (type==='close_app')
@@ -431,20 +450,108 @@ function _renderPult()
     ${body1}
 `;
 */
+
+
+
+
 const AppStyled = styled.div`
   width: 100%;
-  height: calc(100vmin - ${appState.assistantBottomString});
+  height: calc(100vh - ${appState.assistantBottomString});
   padding: 0;
   box-sizing: border-box;
-  background-color: yellow;
   text-align: center;
 
   display: flex;
-  flex-direction: row;
 
+  flex-direction: row;
+  @media (min-aspect-ratio: 1/1)  {
+    height: 100vh;
+  }
+
+  justify-content: space-around;
+
+  @media (max-aspect-ratio: 1/1)  {
+    flex-direction: column;
+  }
+  
   overflow:auto;
 
-${body1}
+  ${body1}
+`;
+
+
+
+// как сделать квадрат
+// https://stackoverflow.com/questions/51041691/inner-div-with-square-ratio-and-flexbox
+
+/*
+#blue {
+  display: flex;
+  align-items: center;
+  justify-content:center;
+  --h:80vh;
+  height:var(--h);
+  background: blue;
+}
+
+#yellow {
+  height: calc(var(--h) / 2);
+  width:calc(var(--h) / 2);
+  background: yellow;
+  position:relative;
+}
+<div id="blue" >
+  <div id="yellow" >
+    <div class="content">Some content here</div>
+  </div>
+</div>
+*/
+
+
+/*
+// то, что работает max-width, можно проверить, сделав такой же min-width
+const Column1Styled = styled.div`
+  background-size: cover;
+  max-width: calc(100vw - calc(100vmin - ${appState.assistantBottomString}));
+
+  height: calc(100vmin - ${appState.assistantBottomString});
+`;
+
+const Column2Styled = styled.div`
+  height: calc(100vmin - ${appState.assistantBottomString});
+  flex: 0 0 calc(100vmin - ${appState.assistantBottomString});
+`;
+*/
+
+const Column1Styled = styled.div`
+  @media (min-aspect-ratio: 1/1)  {
+    background-size: cover;
+    max-width: calc(100vw - calc(100vmin - ${appState.assistantBottomString}));
+  }
+
+  @media (max-aspect-ratio: 1/1)  {
+    background-size: cover;
+    width: 100wv;
+  }
+
+`;
+
+const Column2Styled = styled.div`
+  @media (min-aspect-ratio: 1/1)  {
+    height: calc(100vmin - ${appState.assistantBottomString});
+    flex: 0 0 calc(100vmin - ${appState.assistantBottomString});
+  }
+
+  @media (max-aspect-ratio: 1/1)  {
+
+    display: flex;
+    align-items: center;
+    justify-content:center;
+    --h:100vh;
+    height:var(--h);
+  }
+  
+
 `;
 
 
@@ -454,11 +561,24 @@ ${body1}
   //<div className="App" style={{position: 'absolute', width: "100%", top: 0, left: 0, margin:0, padding: 0, bottom: appState.assistantBottomString}}>
   //<AppStyled className="App">
 
+  const cover = false;//boolean('cover', false);
+
   return (
-    <AppStyled className="App">
-    {/* Используем глобальные react-компоненты один раз 
-    <TypoScale />
-    <DocStyles />*/}
+    <AppStyled>
+    {/* Используем глобальные react-компоненты один раз */}
+    {(() => {
+        switch (detectDevice()) {
+          case "sberPortal":
+            return <TypoScaleSberBox />
+          case "sberBox": 
+            return <TypoScaleSberPortal />
+          case "mobile":
+            return <TypoScaleTouch />
+          default:
+            return;
+        }
+      })()}
+    <DocStyles />
     {(() => {
                 switch (appState.character) {
                     case 'sber':
@@ -471,28 +591,32 @@ ${body1}
                         return;
                 }
             })()}    
-    {/*<Theme />*/}
-    <div className="column1">
-    <div className="stats">
-      <h2>Английские шашки</h2>
-      <div className="wrapper">
-      <div id="player1">
-        <h3>Игрок 1 ({appState.backwardDirection?'Внизу':'Сверху'})</h3>
-        {_renderCapturedPieces(1)}
-      </div>
-      <div id="player2">
-        <h3>Игрок 2 ({appState.backwardDirection?'Вверху':'Внизу'})</h3>
-        {_renderCapturedPieces(2)}
-      </div>
-      </div>
-      <div className="clearfix"></div>
-      <div className="turn" style={appState.playerTurn===1?{background: "linear-gradient(to right, #BEEE62 50%, transparent 50%)"}:{background: "linear-gradient(to right, transparent 50%, #BEEE62 50%)"}}></div>
-      <span id="winner">{appState.gameOver?"Игрок "+appState.playerWin+" победил!":""}</span>
-      <button id="cleargame" onClick={handleClearGameClick}>Reset Game</button>
-    </div>
-  </div>
+    {/*ColumnSpanStyled*/}
+    <Column1Styled>
 
-    <div className="column2">
+      <div className="stats">
+        <h2>Английские шашки {appState.assistantBottomString}</h2>
+        <div className="wrapper">
+        <div id="player1">
+          <h3>Игрок 1 ({appState.backwardDirection?'Внизу':'Сверху'})</h3>
+          {_renderCapturedPieces(1)}
+        </div>
+        <div id="player2">
+          <h3>Игрок 2 ({appState.backwardDirection?'Вверху':'Внизу'})</h3>
+          {_renderCapturedPieces(2)}
+        </div>
+        </div>
+        <div className="clearfix"></div>
+        <div className="turn" style={appState.playerTurn===1?{background: "linear-gradient(to right, var(--plasma-colors-accent) 50%, transparent 50%)"}:{background: "linear-gradient(to right, transparent 50%, var(--plasma-colors-accent) 50%)"}}></div>
+        <span id="winner">{appState.gameOver?"Игрок "+appState.playerWin+" победил!":""}</span>
+        {/*<button id="cleargame" onClick={handleClearGameClick}>Reset Game</button>*/}
+      </div>
+
+
+
+  </Column1Styled>
+  {/*ColumnSpanStyled*/}
+  <Column2Styled>
     <div id="board" onKeyDown={(e)=>handleKeyDown(e)}>
       <div className="tiles">
       {_renderTiles()}
@@ -509,8 +633,9 @@ ${body1}
         {_renderPult()}
       </div>
     </div>
-    </div>
-    </AppStyled>
+  </Column2Styled>
+  {/*ColumnSpanStyled*/}
+  </AppStyled>
   );
 
 

@@ -659,6 +659,8 @@ export const reducer = (state: State, action: Action) => {
       // если не был курсор на экране, просто включим его, без обработки
       if (state.hasArrowSelectedItem)
       {
+        if (state.backwardDirection)
+          return processCellPress(state, 7-state.arrowSelectedItemRow, 7-state.arrowSelectedItemCol);
         return processCellPress(state, state.arrowSelectedItemRow, state.arrowSelectedItemCol)
       }
       return {

@@ -1,125 +1,4 @@
 
-/*это по умолчанию в проекте
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-*/
-
-/*это новое*/
-html, body {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  color: #333333;
-  font-family: "Lato", Calibri, sans-serif;
-  font-size: 16px;
-  background-color: #3A3042; }
-  /*
-  html h1, body h1 {
-    margin-top: 10px; }
-  html h2, body h2 {
-    font-size: 1.3em; }
-  html h3, body h3 {
-    font-size: 1.1em; }
-  html a, body a {
-    text-decoration: none;
-    color: #333333;
-    font-weight: 700; }
-    html a:hover, body a:hover {
-      text-decoration: underline; }
-  html hr, body hr {
-    border: 0;
-    height: 1px;
-    background-color: #333;
-    background-image: linear-gradient(to right, #333333, #ccc); }
-  html .clearfix, body .clearfix {
-    clear: both; }
-  */
-
-  div#root {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-  }
-
-  /* сейчас этот стиль внутри App.tsx
- div.App {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  bottom: 144px;
-}
-*/
-
-/* раньше это были половинки, сейчас лево и право разные
-div.column {
-  position: relative;
-  float: left;
-  overflow: auto;
-  height: 100%;
-  min-height: 100%;
-  width: 50%;
-}
-*/
-
-.columnspan {
-  /*background-color: brown;*/
-  height: calc(100vmin - 144px);
-  flex: 1 1;
-  /*
-  width: calc(100vmax-100vmin);
-  min-width: calc(100vmax-100vmin);
-  height: 100vmin;
-  margin: 0 auto;
-  */
-}
-
-
-.column1 {
-  /*background-color: green;*/
-  height: calc(100vmin - 144px);
-  flex: 1 1;
-  /*
-  width: calc(100vmax-100vmin);
-  min-width: calc(100vmax-100vmin);
-  height: 100vmin;
-  margin: 0 auto;
-  */
-}
-
-.column2 {
-  /*background-color: #AAAAAA;*/
-  height: calc(100vmin - 144px);
-  /*
-  height: 100vmin;
-  margin: 0 auto;
-  height: 100vmin;
-  */
-  flex: 0 0 calc(100vmin - 144px);
-}
-
-
 
 /*
 @media screen and (max-width: 1000px) {
@@ -130,26 +9,32 @@ div.column {
 */    
 
 div.info, div.stats {
-  width: 70%;
-  margin: 13vmin auto 0;
+
+  width: calc(100% - 6px);
+  max-height: calc(100% - 6px);
+
+  /*margin: 13vmin auto 0;*/
   box-sizing: border-box;
-  padding: 20px 30px;
-  background-color: #F1F1FF;
-  color: #3A3042;
+  /*padding: 20px 30px;*/
+  background-color: var(--plasma-colors-background);
+  color: var(--plasma-colors-text);
   border-radius: 3px;
   box-shadow: 1px 1px 3px #232621; }
 
 div.stats {
-  margin: 50px auto !important; }
+  margin: 50px auto !important; 
+  display:inline-block;
+}
   div.stats .wrapper {
     display: flex; }
+
   div.stats #player1 {
     text-align: center;
     display: inline-block;
     width: 50%;
     /*float: left;*/
     background-color: #B93848;
-    box-sizing: border-box;
+    /*box-sizing: border-box;*/
     padding: 0 15px 20px;
     border-top-left-radius: 3px;
     color: #232621; }
@@ -172,7 +57,7 @@ div.stats {
     width: 50%;
     /*float: left;*/
     background-color: #232621;
-    box-sizing: border-box;
+    /*box-sizing: border-box;*/
     padding: 0 15px 20px;
     border-top-right-radius: 3px;
     color: #B93848; }
@@ -186,12 +71,12 @@ div.stats {
       background-position: center;
       border-radius: 6vmin;
       display: inline-block;
-      box-sizing: border-box;
+      /*box-sizing: border-box;*/
       transition: all 0.2s linear;
       margin: 5px; }
 
   div.stats div.turn {
-    height: 10px;
+    height: 30px;
     width: 100%;
     /*background: linear-gradient(to right, #BEEE62 50%, transparent 50%);*/
     /*background: linear-gradient(to right, transparent 50%, #BEEE62 50%);*/
@@ -227,6 +112,23 @@ div#board {
   background-color: #B93848;
   overflow: hidden; }
 
+@media (max-aspect-ratio: 1/1)  {
+
+div#board {
+  position: relative;
+  top: 0;
+  left: 0;
+  height: calc(var(--h) / 2);
+  width:calc(var(--h) / 2);
+  border-radius: 5px;
+  box-shadow: 1px 1px 3px #232621;
+  background-color: #B93848;
+  overflow: hidden; }
+
+}
+
+
+
   div#board .tile {
     width: 12.5%;
     height: 12.5%;
@@ -243,6 +145,7 @@ div#board {
     width: 10%;
     height: 10%;
     background-color: #e4a6ae;
+    color: var(--plasma-colors-black);
     background-size: 65%;
     background-repeat: no-repeat;
     background-position: center;
@@ -250,8 +153,8 @@ div#board {
     display: inline-block;
     box-sizing: border-box;
     transition: all 0.2s linear;
-    margin-top: 1vmin;
-    margin-left: 1vmin;
+    margin-top: 1.25%;
+    margin-left: 1.25%;
     cursor: pointer;
     border: 1vmin solid #B93848; }
     div#board .player1pieces .piece.selected {
@@ -266,6 +169,7 @@ div#board {
     width: 10%;
     height: 10%;
     background-color: #F1F1FF;
+    color: var(--plasma-colors-black);
     background-size: 65%;
     background-repeat: no-repeat;
     background-position: center;
@@ -273,8 +177,8 @@ div#board {
     display: inline-block;
     box-sizing: border-box;
     transition: all 0.2s linear;
-    margin-top: 1vmin;
-    margin-left: 1vmin;
+    margin-top: 1.25%;
+    margin-left: 1.25%;
     cursor: pointer;
     border: 1vmin solid #8b8bff; }
 
@@ -283,8 +187,8 @@ div#board {
 
 
     div#board .pult .selection {
-      width: 10%;
-      height: 10%;
+      width: 12.5%;
+      height: 12.5%;
       position: absolute;
       background-color: #ffffff77; }
   
