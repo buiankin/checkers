@@ -170,7 +170,8 @@ export const App: FC = memo(() => {
       if (insets)
       {
         //alert("left="+insets.left+", top="+insets.top+", right="+insets.right+", bottom="+insets.bottom);
-        dispatch({type: 'assistantBottomString', bottomString: insets.bottom.toString()+"px"});
+        // TODO
+        //dispatch({type: 'assistantBottomString', bottomString: insets.bottom.toString()+"px"});
       }
       if (type==='close_app')
       {
@@ -595,7 +596,7 @@ const Column2Styled = styled.div`
     <Column1Styled>
 
       <div className="stats">
-        <h2>Английские шашки {appState.assistantBottomString}</h2>
+        <h2>Английские шашки {detectDevice()}/{appState.assistantBottomString}</h2>
         <div className="wrapper">
         <div id="player1">
           <h3>Игрок 1 ({appState.backwardDirection?'Внизу':'Сверху'})</h3>
