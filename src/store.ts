@@ -14,13 +14,8 @@ export const initialState = {
   //The initial setup
 
   russianRules: false,
-  /*
-  backwardDirection: true,
-  players: [{isRobot: true}, {isRobot: false}],
-  playerTurn: 2,
-  */
 
-  backwardDirection: false,
+  backwardDirection: true,
   players: [{isRobot: false}, {isRobot: true}],
   playerTurn: 1,
   gameOver: false,
