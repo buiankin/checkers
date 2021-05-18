@@ -53,6 +53,7 @@ import { text, background, gradient } from '@sberdevices/plasma-tokens';
 
 import { applyView, ViewProps, View } from '@sberdevices/plasma-core/mixins';
 
+/*
 import {
   Card,
   CardBody,
@@ -65,6 +66,7 @@ import {
   TextBoxSubTitle,
   Button
 } from '@sberdevices/plasma-ui';
+*/
 
 
 //const dictionary = ["0vmin", "10vmin", "20vmin", "30vmin", "40vmin", "50vmin", "60vmin", "70vmin", "80vmin", "90vmin"];
@@ -170,7 +172,9 @@ export const App: FC = memo(() => {
       if (insets)
       {
         //alert("left="+insets.left+", top="+insets.top+", right="+insets.right+", bottom="+insets.bottom);
-        // TODO
+        // это можно использовать, если ассистент перекрывает и мешает видеть доску
+        // но эта проблема, как выяснилось, только на компьютере - в сбербоксе это не мешает
+        // а в салюте эти области не пересекаются совсем
         //dispatch({type: 'assistantBottomString', bottomString: insets.bottom.toString()+"px"});
       }
       if (type==='close_app')
@@ -596,7 +600,7 @@ const Column2Styled = styled.div`
     <Column1Styled>
 
       <div className="stats">
-        <h2>Английские шашки {detectDevice()}/{appState.assistantBottomString}</h2>
+        <h2>Английские шашки</h2>
         <div className="wrapper">
         <div id="player1">
           <h3>Игрок 1 ({appState.backwardDirection?'Внизу':'Сверху'})</h3>
