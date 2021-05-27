@@ -149,9 +149,9 @@ export const App: FC = memo(() => {
 
     assistantRef.current = initializeAssistant(() => assistantStateRef.current);
 
-    //assistantRef.current.on("start", () => {
-    //  alert("Start!");
-    //});
+    assistantRef.current.on("start", () => {
+      console.log(new Date(), 'assistantStart');
+    });
 
     assistantRef.current.on("data", ({ type, character, navigation, action, insets, command }: any) => {
       // Из-за того, что React.Strict несмотря на то, что вызов я делаю 1 раз, dispatch срабатывае дважды
@@ -166,7 +166,18 @@ export const App: FC = memo(() => {
       }
       // AssistantServerAction
       if (action) {
-        dispatch(action);
+        switch (action)
+        {
+          case 'reset':
+            dispatch(action);
+            sendToAssistant('gameLoaded', {}, 100);
+            break;
+          case 'exit':
+            appExit();
+            break;
+          default:
+            dispatch(action);
+        }
       }
       // AssistantInsetsCommand - команда, которая сообщает смартапу о том, что поверх него будет отображен нативный UI и его размеры.
       if (insets)
@@ -177,11 +188,15 @@ export const App: FC = memo(() => {
         // а в салюте эти области не пересекаются совсем
         //dispatch({type: 'assistantBottomString', bottomString: insets.bottom.toString()+"px"});
       }
+      /*
       if (type==='close_app')
       {
         assistantRef?.current?.close();
       }
+      */
     });
+
+    sendToAssistant('gameLoaded', {}, 100);
 
   }, []);
   
@@ -280,6 +295,41 @@ export const App: FC = memo(() => {
     dispatch({type: 'tile_click', row: row, column: column});
   }
   
+
+  const sendToAssistant = (action: string, data: any, timeout: number = 100) => {
+    setTimeout(() => {
+        console.log(new Date(), 'sendToAssistant', action, data);
+
+        if (appState.userId !== '') {
+            fetch(
+                'https://alangames.ru/scripts/logger.php',
+                {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        action: 'add',
+                        game: 'checkers',
+                        file: appState.userId,
+                        json: {
+                            type: 'sendToAssistant',
+                            action: action,
+                            data: data,
+                            timeout: timeout
+                        }
+                    })
+                }
+            );
+        }
+
+
+        assistantRef.current?.sendData({action: {action_id: action, parameters: data}});
+    }, timeout);
+};
+
+const appExit = () => {
+    assistantRef.current?.close();
+}
+
 
 function _renderTiles()
 {
@@ -555,8 +605,6 @@ const Column2Styled = styled.div`
     --h:100vh;
     height:var(--h);
   }
-  
-
 `;
 
 
