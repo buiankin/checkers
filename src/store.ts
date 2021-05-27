@@ -7,7 +7,10 @@ import Move from './ai/move';
 
 export const initialState = { 
   actionsToSend: [],
+
+  rulesAreOpened: false,
   character: 'sber',
+  userId: '',
   respectfulAppeal: true,
   assistantBottomString: "0px",
 
@@ -88,7 +91,9 @@ type State = {
   //notes: Array<Note>;
   actionsToSend: Array<ActionToSend>,
 
+  rulesAreOpened: boolean,
   character: string,
+  userId: string,
   respectfulAppeal: boolean,
   assistantBottomString: string,
 
@@ -120,7 +125,26 @@ type State = {
 type Action =
   | {
     type: "init";
+    character_id: string;
+    user_id: string;
   }
+  | {
+    type: "reset";
+  }
+  | {
+    type: "new";
+  }
+  | {
+    type: "rules";
+  }
+  | {
+    type: "continue";
+  }
+  | {
+    type: "loadSaved";
+  }
+
+
   | {
     type: "character";
     character_id: string;
@@ -176,6 +200,101 @@ type Action =
   | {
     type: "continue_move_by_robot" // следующие ходы робота
   };
+
+  const loadSavedGame = (state: State) => {
+    return fetch(
+         'https://alangames.ru/scripts/saver.php',
+         {
+             method: 'POST',
+             headers: {'Content-Type': 'application/json'},
+             cache: 'no-cache',
+             body: JSON.stringify({
+                 action: 'get',
+                 game: 'checkers',
+                 file: state.userId,
+             })
+         }
+     ).then((response) => response.json()).then((responseData) => {
+         return responseData;
+    });
+ }
+
+ function gameInstance_getJson(state: State)
+ {
+   /*
+  let gameInstance={
+    russianRules: state.russianRules,
+    backwardDirection: state.backwardDirection,
+    players: state.players,
+    playerTurn: state.playerTurn,
+    gameOver: state.gameOver,
+    playerWin: state.playerWin,
+    capturedPieces: state.capturedPieces,
+    gameBoard: state.gameBoard
+  };
+  */
+
+  /*
+getJson() {
+        let data: any = {
+            state: this.state, // currentPlayer
+            lastMoveStatus: this.lastMoveStatus,
+            moveCount: Game.moveCount,
+            firstPlayerField: this.getFirstPlayer().getField().getJson(),
+            secondPlayerField: this.getSecondPlayer().getField().getJson(),
+        };
+
+        return data;
+    }
+
+    loadJson(data: any) {
+        this.state = data.state;
+        this.lastMoveStatus = data.lastMoveStatus;
+        Game.moveCount = data.moveCount;
+
+        if (this.state == GameState.FirstPlayerMove) {
+            this.currentPlayer = this.firstPlayer;
+        } else  if (this.state == GameState.SecondPlayerMove) {
+            this.currentPlayer = this.secondPlayer;
+        }
+
+        this.getFirstPlayer().getField().loadJson(data.firstPlayerField);
+        this.getSecondPlayer().getField().loadJson(data.secondPlayerField);
+    }  
+  */
+
+  JSON.stringify({
+    russianRules: state.russianRules,
+    backwardDirection: state.backwardDirection,
+    players: state.players,
+    playerTurn: state.playerTurn,
+    gameOver: state.gameOver,
+    playerWin: state.playerWin,
+    capturedPieces: state.capturedPieces,
+    gameBoard: state.gameBoard
+  });
+
+ }
+
+ const saveGame = (state: State) => {
+
+     if (state.userId !== '') {
+         fetch(
+             'https://alangames.ru/scripts/saver.php',
+             {
+                 method: 'POST',
+                 headers: {'Content-Type': 'application/json'},
+                 body: JSON.stringify({
+                     action: 'save',
+                     game: 'checkers',
+                     file: state.userId,
+                     json: gameInstance_getJson(state)
+                 })
+             }
+         );
+     }
+ }
+
 
 
 function getLegalMoves(state: State)
@@ -502,6 +621,14 @@ export const reducer = (state: State, action: Action) => {
         ...state,
         character: action.character_id, respectfulAppeal: action.character_id!=='joy'
       }
+
+    case "init":
+      return {
+        ...state,
+        character: action.character_id, respectfulAppeal: action.character_id!=='joy',
+        userId: action.user_id
+      }
+  
       
     case "assistantBottomString":
       return {
@@ -753,6 +880,14 @@ export const reducer = (state: State, action: Action) => {
       };
       */
     }
+
+    case 'loadSaved':
+
+      loadSavedGame().then((savedData) => {
+        loadGame(savedData);
+      });
+
+      return state;
 
     default:
       throw new Error();
